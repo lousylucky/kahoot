@@ -1,4 +1,15 @@
-import { Injectable, inject } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
+import { Question } from '../models/question';
+import { Choice } from '../models/choice';
+import {
+  BehaviorSubject,
+  combineLatest,
+  map,
+  mergeMap,
+  Observable,
+  switchMap,
+  tap,
+} from 'rxjs';
 import { Quiz } from '../models/quiz';
 import {
   Firestore,
@@ -6,133 +17,140 @@ import {
   collectionData,
   doc,
   docData,
-  addDoc,
-  updateDoc,
+  collectionCount,
+  setDoc,
+  writeBatch,
   deleteDoc,
+  getDocs,
 } from '@angular/fire/firestore';
-import { firstValueFrom, Observable } from 'rxjs';
-
 
 @Injectable({
   providedIn: 'root',
 })
 export class QuizService {
-//   private quizzes: Quiz[] = [
-//   {
-//     id: 1,
-//     title: 'TypeScript Basics',
-//     description: 'Test your knowledge of typing in Angular.',
-//     questions: [
-//       {
-//         id: 101,
-//         text: 'Which TypeScript type means no value is assigned?',
-//         choices: [
-//           { id: 1, text: 'string' },
-//           { id: 2, text: 'void' },
-//           { id: 3, text: 'undefined' },
-//         ],
-//         correctChoiceId: 3,
-//       },
-//       {
-//         id: 102,
-//         text: 'Angular is mainly built using:',
-//         choices: [
-//           { id: 4, text: 'Java' },
-//           { id: 5, text: 'TypeScript' },
-//           { id: 6, text: 'Python' },
-//         ],
-//         correctChoiceId: 5,
-//       },
-//     ],
-//   },
-//   // --- QUIZ 2: Film history ---
-//   {
-//     id: 2,
-//     title: 'World Cinema',
-//     description: 'Are you a true movie lover?',
-//     questions: [
-//       {
-//         id: 201,
-//         text: 'Who directed the movie "Inception"?',
-//         choices: [
-//           { id: 7, text: 'Steven Spielberg' },
-//           { id: 8, text: 'Christopher Nolan' },
-//           { id: 9, text: 'Quentin Tarantino' },
-//         ],
-//         correctChoiceId: 8,
-//       },
-//     ],
-//   },
-//   // --- QUIZ 3: Geography ---
-//   {
-//     id: 3,
-//     title: 'World Capitals',
-//     description: 'A short test of country knowledge.',
-//     questions: [
-//       {
-//         id: 301,
-//         text: 'What is the capital of France?',
-//         choices: [
-//           { id: 10, text: 'Berlin' },
-//           { id: 11, text: 'Madrid' },
-//           { id: 12, text: 'Paris' },
-//         ],
-//         correctChoiceId: 12,
-//       },
-//     ],
-//   },
-// ]
-  constructor() {}
+  private firestore: Firestore = inject(Firestore); // inject Cloud Firestore
 
-  private firestore: Firestore = inject(Firestore);
-  private quizzesRef = collection(this.firestore, 'quizzes');
+  // ne pas oublier de faire un get avec un where car il faudra mettre une sercuriter sur règles de firebase
+  getAll(): Observable<Quiz[]> {
+  const quizzesCollection = collection(this.firestore, 'quizzes');
 
+  const quizzes$ = collectionData(quizzesCollection, { idField: 'id' }) as Observable<Quiz[]>;
 
-  async getAll(): Promise<Quiz[]> {
-    return firstValueFrom(
-      collectionData(this.quizzesRef, { idField: 'id' }) as Observable<Quiz[]>
+  return quizzes$.pipe(
+    mergeMap((quizzes) =>
+      quizzes.length
+        ? combineLatest(
+            quizzes.map((quiz) => {
+              const questionsCollection = collection(
+                this.firestore,
+                `quizzes/${quiz.id}/questions`,
+              );
+
+              return collectionCount(questionsCollection).pipe(
+                map((count) => ({
+                  ...quiz,
+                  questionsCount: count,
+                })),
+              );
+            }),
+          )
+        : [ [] as Quiz[] ],
+    ),
+  );
+}
+
+  getById(id: string) {
+    // get a reference to the quiz doc
+    const quizDoc = doc(this.firestore, `quizzes/${id}`);
+
+    // get document (data) from the doc using docData
+    const quizData = docData(quizDoc, {
+      idField: 'id',
+    }) as Observable<Quiz>;
+
+    return quizData.pipe(
+      switchMap((quiz) => this.assembleQuiz(quiz)),
+      tap(console.log),
+    ) as Observable<Quiz>;
+  }
+
+  private assembleQuiz(quiz: Quiz): Observable<Quiz> {
+    return (
+      collectionData(
+        collection(doc(this.firestore, `quizzes/${quiz.id}`), 'questions'),
+        {
+          idField: 'id',
+        },
+      ) as Observable<Question[]>
+    ).pipe(
+      map((questions) => ({
+        ...quiz,
+        questions: questions,
+      })),
     );
-    // return [...this.quizzes];
   }
 
-  async get(quizId: number): Promise<Quiz> {
-        const ref = doc(this.firestore, `quizzes/${quizId}`);
-    const quiz = await firstValueFrom(
-      docData(ref, { idField: 'id' }) as Observable<Quiz>
-    );
-    if (!quiz) throw new Error(`Quiz not found: ${quizId}`);
-    return quiz;
+  async setQuiz(quiz: Quiz): Promise<void> {
+    const batch = writeBatch(this.firestore);
 
+    // Quiz (auto ID or provided ID — your choice)
+    const quizRef = doc(this.firestore, 'quizzes', quiz.id);
 
-    // const quiz = this.quizzes.find((q) => q.id === quizId);
-    // if (!quiz) throw new Error(`Quiz not found: ${quizId}`);
-    // return quiz;
+    batch.set(quizRef, {
+      title: quiz.title,
+      description: quiz.description,
+    });
+
+    for (const question of quiz.questions) {
+      const questionRef = doc(
+        this.firestore,
+        `quizzes/${quiz.id}/questions/${question.id}`,
+      );
+
+      batch.set(questionRef, {
+        text: question.text,
+        correctChoiceIndex: question.correctChoiceIndex,
+        choices: question.choices,
+      });
+    }
+
+    await batch.commit();
   }
 
-  async addQuiz(quiz: Quiz): Promise<Quiz> {
-    // this.quizzes = [...this.quizzes, quiz];
-    // return quiz;
-        const { id, ...payload } = quiz;
-    const docRef = await addDoc(this.quizzesRef, payload);
-    return { ...quiz, id: docRef.id };
+  deleteQuiz(quizId: string): Promise<void> {
+    return deleteDoc(doc(this.firestore, `quizzes/${quizId}`));
   }
 
-  async deleteQuiz(quizId: string): Promise<void> {
-    // const id = Number(quizId);
-    // this.quizzes = this.quizzes.filter((q) => q.id !== id);
-        await deleteDoc(doc(this.firestore, `quizzes/${quizId}`));
-
+  generateQuizId(): string {
+    return doc(collection(this.firestore, 'quizzes')).id;
   }
 
-  async updateQuiz(updatedQuiz: Quiz): Promise<Quiz> {
-    // const index = this.quizzes.findIndex((q) => q.id === updatedQuiz['id']);
-    // if (index === -1)
-    //   throw new Error(`Could not find a quiz with given id: ${updatedQuiz.id}`);
+  generateQuestionId(quizId: string): string {
+    const quizRef = doc(this.firestore, `quizzes/${quizId}`);
+    return doc(collection(quizRef, 'questions')).id;
+  }
 
-    // this.quizzes[index] = { ...updatedQuiz };
-    // return this.quizzes[index];
-        const { id, ...payload } = updatedQuiz;
-    await updateDoc(doc(this.firestore, `quizzes/${id}`), payload);
-    return updatedQuiz;
+  generateQuiz() {
+    const quizId = this.generateQuizId();
+    const questionId = this.generateQuestionId(quizId);
+    const correctChoiceIndex = 0;
+    return {
+      id: quizId,
+      title: 'Guess the Capital City',
+      description: 'A fun quiz to test your knowledge of world capitals.',
+      questions: [
+        {
+          id: questionId,
+          text: 'What is the capital of France?',
+          choices: [
+            { text: 'Paris' },
+            { text: 'London' },
+            { text: 'Berlin' },
+            { text: 'Madrid' },
+          ],
+          correctChoiceIndex,
+        },
+      ],
+    };
   }
 }

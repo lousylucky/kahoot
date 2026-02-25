@@ -51,21 +51,20 @@ export class AddQuizModalComponent {
   private modalCtrl = inject(ModalController);
 
   readonly MAX_CHOICES = 5;
-  private nextChoiceId = 1;
 
   quizModel = signal({
     title: '',
     description: '',
     questionText: '',
     choices: [
-      { id: 1, text: '' },
-      { id: 2, text: '' },
+      { text: '' },
+      { text: '' },
     ],
-    correctChoiceId: null as number | null,
+    correctChoiceIndex: 0,
   });
 
   choices = computed(() => this.quizModel().choices);
-  correctChoiceId = computed(() => this.quizModel().correctChoiceId);
+  correctChoiceIndex = computed(() => this.quizModel().correctChoiceIndex);
   filledChoices = computed(() =>
     this.quizModel().choices.filter((c) => c.text.trim().length > 0)
   );
@@ -74,14 +73,14 @@ export class AddQuizModalComponent {
     this.quizModel().choices.some((c) => c.text.trim().length === 0)
   );
   hasCorrect = computed(() => {
-    const id = this.quizModel().correctChoiceId;
-    if (id == null) return false;
-    return this.filledChoices().some((c) => c.id === id);
+    const { choices, correctChoiceIndex } = this.quizModel();
+    if (correctChoiceIndex == null) return false;
+    return (
+      correctChoiceIndex >= 0 &&
+      correctChoiceIndex < choices.length &&
+      choices[correctChoiceIndex].text.trim().length > 0
+    );
   });
-
-  constructor() {
-    this.nextChoiceId = 3;
-  }
 
   quizForm = form(this.quizModel, (path) => {
     required(path.title, { message: 'Title is required' });
@@ -97,39 +96,50 @@ export class AddQuizModalComponent {
     const current = this.quizModel();
     if (current.choices.length >= this.MAX_CHOICES) return;
 
-    const newChoice: Choice = { id: this.nextChoiceId++, text: '' };
+    const newChoice: Choice = { text: '' };
     this.quizModel.set({
       ...current,
       choices: [...current.choices, newChoice],
     });
   }
 
-  removeChoice(choiceId: number) {
+  removeChoice(choiceIndex: number) {
     const current = this.quizModel();
-    const newChoices = current.choices.filter((c) => c.id !== choiceId);
-    const newCorrect =
-      current.correctChoiceId === choiceId ? null : current.correctChoiceId;
+    const newChoices = current.choices.filter((_, index) => index !== choiceIndex);
+    let newCorrectChoiceIndex = current.correctChoiceIndex;
+
+    if (newCorrectChoiceIndex === choiceIndex) {
+      newCorrectChoiceIndex = 0;
+    } else if (choiceIndex < newCorrectChoiceIndex) {
+      newCorrectChoiceIndex -= 1;
+    }
+
+    if (newChoices.length === 0) {
+      newCorrectChoiceIndex = 0;
+    } else if (newCorrectChoiceIndex >= newChoices.length) {
+      newCorrectChoiceIndex = newChoices.length - 1;
+    }
 
     this.quizModel.set({
       ...current,
       choices: newChoices,
-      correctChoiceId: newCorrect,
+      correctChoiceIndex: newCorrectChoiceIndex,
     });
   }
 
-  updateChoiceText(choiceId: number, text: string) {
+  updateChoiceText(choiceIndex: number, text: string) {
     const current = this.quizModel();
     this.quizModel.set({
       ...current,
-      choices: current.choices.map((c) =>
-        c.id === choiceId ? { ...c, text } : c
+      choices: current.choices.map((choice, index) =>
+        index === choiceIndex ? { ...choice, text } : choice
       ),
     });
   }
 
-  setCorrect(choiceId: number) {
+  setCorrect(choiceIndex: number) {
     const current = this.quizModel();
-    this.quizModel.set({ ...current, correctChoiceId: choiceId });
+    this.quizModel.set({ ...current, correctChoiceIndex: choiceIndex });
   }
 
   confirm() {
@@ -141,18 +151,20 @@ export class AddQuizModalComponent {
       (c) => c.text.trim().length === 0
     );
     const hasCorrect =
-      data.correctChoiceId != null &&
-      filledChoices.some((c) => c.id === data.correctChoiceId);
+      data.correctChoiceIndex != null &&
+      data.correctChoiceIndex >= 0 &&
+      data.correctChoiceIndex < data.choices.length &&
+      data.choices[data.correctChoiceIndex].text.trim().length > 0;
 
     if (!hasMinChoices || !hasCorrect || hasEmptyChoices) {
       return;
     }
 
     const question: Question = {
-      id: Date.now(),
+      id: '1', // For the test only
       text: data.questionText.trim(),
-      choices: filledChoices,
-      correctChoiceId: data.correctChoiceId,
+      choices: filledChoices.map((choice) => ({ text: choice.text.trim() })),
+      correctChoiceIndex: data.correctChoiceIndex,
     };
 
     this.modalCtrl.dismiss(
