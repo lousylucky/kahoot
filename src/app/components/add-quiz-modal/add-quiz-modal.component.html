@@ -65,21 +65,21 @@
     </div>
 
     <ion-radio-group
-      [value]="correctChoiceId()"
+      [value]="correctChoiceIndex()"
       (ionChange)="setCorrect($event.detail.value)"
     >
       <ion-list>
-        @for (c of choices(); track c.id) {
+        @for (c of choices(); track $index; let i = $index) {
           <ion-item>
-            <ion-radio slot="start" [value]="c.id"></ion-radio>
+            <ion-radio slot="start" [value]="i"></ion-radio>
 
             <ion-input
               [value]="c.text"
               placeholder="Choice text"
-              (ionInput)="updateChoiceText(c.id, $any($event.target).value)">
+              (ionInput)="updateChoiceText(i, $any($event.target).value)">
             </ion-input>
 
-            <ion-button slot="end" fill="clear" color="danger" (click)="removeChoice(c.id)">
+            <ion-button slot="end" fill="clear" color="danger" (click)="removeChoice(i)">
               Remove
             </ion-button>
           </ion-item>

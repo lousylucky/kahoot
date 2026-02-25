@@ -1,4 +1,3 @@
 export interface Choice {
-    id: number;
-    text: string;
+  text: string;
 }
