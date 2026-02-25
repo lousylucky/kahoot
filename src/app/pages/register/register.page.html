@@ -1,0 +1,51 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-title>Register</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <form (ngSubmit)="onRegister()">
+    <ion-item>
+      <ion-input
+        label="Email"
+        labelPlacement="floating"
+        type="email"
+        [(ngModel)]="email"
+        name="email"
+        required
+      ></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-input
+        label="Password"
+        labelPlacement="floating"
+        type="password"
+        [(ngModel)]="password"
+        name="password"
+        required
+      ></ion-input>
+    </ion-item>
+
+    @if (errorMessage) {
+      <ion-text color="danger">
+        <p class="ion-padding-start">{{ errorMessage }}</p>
+      </ion-text>
+    }
+
+    @if (successMessage) {
+      <ion-text color="success">
+        <p class="ion-padding-start">{{ successMessage }}</p>
+      </ion-text>
+    }
+
+    <ion-button expand="block" type="submit" class="ion-margin-top">
+      Register
+    </ion-button>
+  </form>
+
+  <ion-text class="ion-text-center">
+    <p>Already have an account? <a routerLink="/login">Login</a></p>
+  </ion-text>
+</ion-content>
