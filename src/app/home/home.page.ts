@@ -3,8 +3,10 @@ import { IonicModule, ModalController } from '@ionic/angular';
 import { QuizService } from '../services/quizService';
 import { Quiz } from '../models/quiz';
 import { AddQuizModalComponent } from '../components/add-quiz-modal/add-quiz-modal.component';
+import { Router } from '@angular/router';
+import { Auth } from '../services/auth';
 import { addIcons } from 'ionicons';
-import { add, playOutline } from 'ionicons/icons';
+import { add, playOutline, logOutOutline } from 'ionicons/icons';
 
 @Component({
   selector: 'app-home',
@@ -22,7 +24,10 @@ export class HomePage implements OnInit {
     // Rejestrujemy ikonę plusa
     addIcons({ add });
     addIcons({ playOutline });
+    addIcons({ add, logOutOutline });
   }
+  private auth = inject(Auth);
+  private router = inject(Router);
 
   ngOnInit() {
     this.quizService.getAll().subscribe((data) => {
@@ -38,7 +43,6 @@ export class HomePage implements OnInit {
 
     await modal.present();
 
-    // Oczekiwanie na zamknięcie modala
     const { data, role } = await modal.onWillDismiss();
 
     if (role === 'confirm' && data) {
@@ -66,5 +70,10 @@ export class HomePage implements OnInit {
     event.stopPropagation();
     event.preventDefault();
   }
+
+  // Icone i formulaire ze storny ?
+  async onLogout() {
+    await this.auth.signOut();
+    this.router.navigateByUrl('/login');
+  }
 }
-// Icone i formulaire ze storny ?
