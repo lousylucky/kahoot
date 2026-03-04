@@ -4,6 +4,7 @@ import {
   collection,
   collectionData,
   doc,
+  docData,
   Firestore,
 } from '@angular/fire/firestore';
 import { User } from '@angular/fire/auth';
@@ -31,5 +32,9 @@ export class UserService {
     return collectionData(this.usersCollection, {
       idField: 'id',
     }) as Observable<UserWithAlias[]>;
+  }
+
+  getById(uid: string): Observable<UserWithAlias> {
+    return docData(doc(this.firestore, `users/${uid}`)) as Observable<UserWithAlias>;
   }
 }

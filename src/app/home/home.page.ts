@@ -7,6 +7,7 @@ import { Router } from '@angular/router';
 import { addIcons } from 'ionicons';
 import { add, playOutline, logOutOutline } from 'ionicons/icons';
 import { Auth } from '@angular/fire/auth';
+import { UserService } from '../services/user.service';
 
 @Component({
   selector: 'app-home',
@@ -16,9 +17,11 @@ import { Auth } from '@angular/fire/auth';
 })
 export class HomePage implements OnInit {
   quizzes = signal<Quiz[]>([]);
+  alias = signal<string>('');
 
   private quizService = inject(QuizService);
   private modalCtrl = inject(ModalController);
+  private userService = inject(UserService);
 
   constructor() {
     // Rejestrujemy ikonę plusa
@@ -33,7 +36,14 @@ export class HomePage implements OnInit {
     this.quizService.getAll().subscribe((data) => {
       this.quizzes.set(data);
     });
-    console.log(this.quizzes());
+    const currentUser = this.auth.currentUser;
+    if (currentUser) {
+      this.userService.getById(currentUser.uid).subscribe((userData) => {
+        if (userData?.alias) {
+          this.alias.set(userData.alias);
+        }
+      });
+    }
   }
 
   async openAddModal() {
