@@ -1,4 +1,4 @@
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, Injector, runInInjectionContext } from '@angular/core';
 import { Question } from '../models/question';
 import { Choice } from '../models/choice';
 import {
@@ -8,7 +8,6 @@ import {
   mergeMap,
   Observable,
   switchMap,
-  tap,
 } from 'rxjs';
 import { Quiz } from '../models/quiz';
 import {
@@ -28,65 +27,65 @@ import {
   providedIn: 'root',
 })
 export class QuizService {
-  private firestore: Firestore = inject(Firestore); // inject Cloud Firestore
+  private firestore: Firestore = inject(Firestore);
+  private injector: Injector = inject(Injector);
 
   // ne pas oublier de faire un get avec un where car il faudra mettre une sercuriter sur règles de firebase
   getAll(): Observable<Quiz[]> {
-  const quizzesCollection = collection(this.firestore, 'quizzes');
+    const quizzesCollection = collection(this.firestore, 'quizzes');
 
-  const quizzes$ = collectionData(quizzesCollection, { idField: 'id' }) as Observable<Quiz[]>;
+    const quizzes$ = runInInjectionContext(this.injector, () =>
+      collectionData(quizzesCollection, { idField: 'id' }) as Observable<Quiz[]>
+    );
 
-  return quizzes$.pipe(
-    mergeMap((quizzes) =>
-      quizzes.length
-        ? combineLatest(
-            quizzes.map((quiz) => {
-              const questionsCollection = collection(
-                this.firestore,
-                `quizzes/${quiz.id}/questions`,
-              );
+    return quizzes$.pipe(
+      mergeMap((quizzes) =>
+        quizzes.length
+          ? combineLatest(
+              quizzes.map((quiz) => {
+                const questionsCollection = collection(
+                  this.firestore,
+                  `quizzes/${quiz.id}/questions`,
+                );
 
-              return collectionCount(questionsCollection).pipe(
-                map((count) => ({
-                  ...quiz,
-                  questionsCount: count,
-                })),
-              );
-            }),
-          )
-        : [ [] as Quiz[] ],
-    ),
-  );
-}
+                return runInInjectionContext(this.injector, () =>
+                  collectionCount(questionsCollection).pipe(
+                    map((count) => ({
+                      ...quiz,
+                      questionsCount: count,
+                    })),
+                  )
+                );
+              }),
+            )
+          : [[] as Quiz[]],
+      ),
+    );
+  }
 
-  getById(id: string) {
-    // get a reference to the quiz doc
+  getById(id: string): Observable<Quiz> {
     const quizDoc = doc(this.firestore, `quizzes/${id}`);
 
-    // get document (data) from the doc using docData
-    const quizData = docData(quizDoc, {
-      idField: 'id',
-    }) as Observable<Quiz>;
+    const quizData = runInInjectionContext(this.injector, () =>
+      docData(quizDoc, { idField: 'id' }) as Observable<Quiz>
+    );
 
     return quizData.pipe(
       switchMap((quiz) => this.assembleQuiz(quiz)),
-      tap(console.log),
     ) as Observable<Quiz>;
   }
 
   private assembleQuiz(quiz: Quiz): Observable<Quiz> {
-    return (
-      collectionData(
+    return runInInjectionContext(this.injector, () =>
+      (collectionData(
         collection(doc(this.firestore, `quizzes/${quiz.id}`), 'questions'),
-        {
-          idField: 'id',
-        },
-      ) as Observable<Question[]>
-    ).pipe(
-      map((questions) => ({
-        ...quiz,
-        questions: questions,
-      })),
+        { idField: 'id' },
+      ) as Observable<Question[]>).pipe(
+        map((questions) => ({
+          ...quiz,
+          questions,
+        })),
+      )
     );
   }
 

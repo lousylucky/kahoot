@@ -1,0 +1,77 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>{{ quiz?.title || 'Quiz' }}</ion-title>
+    <ion-button slot="start" fill="clear" (click)="goHome()">
+      <ion-icon slot="icon-only" name="chevron-back"></ion-icon>
+    </ion-button>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  @if (quiz && !quizFinished) {
+  <div class="quiz-container">
+    <ion-progress-bar [value]="progress" color="primary"></ion-progress-bar>
+
+    <div class="question-info">
+      <p>Question {{ currentQuestionIndex + 1 }} / {{ quiz.questions.length }}</p>
+    </div>
+
+    @if (currentQuestion) {
+    <div class="question-card">
+      <h2 class="question-text">{{ currentQuestion.text }}</h2>
+
+      <div class="choices-grid">
+        @for (choice of currentQuestion.choices; track $index) {
+        <button
+          class="choice-btn choice-{{ $index }}"
+          [class.selected]="selectedAnswers[currentQuestion.id] === $index"
+          (click)="selectAnswer($index)">
+          {{ choice.text }}
+        </button>
+        }
+      </div>
+    </div>
+
+    <div class="navigation-buttons">
+      <ion-button (click)="previousQuestion()" [disabled]="currentQuestionIndex === 0" fill="outline">
+        <ion-icon slot="start" name="chevron-back"></ion-icon>
+        Précédent
+      </ion-button>
+
+      @if (currentQuestionIndex < quiz.questions.length - 1) {
+      <ion-button (click)="nextQuestion()" [disabled]="selectedAnswers[currentQuestion.id] === undefined">
+        Suivant
+        <ion-icon slot="end" name="chevron-forward"></ion-icon>
+      </ion-button>
+      } @else {
+      <ion-button (click)="finishQuiz()" [disabled]="selectedAnswers[currentQuestion.id] === undefined" color="success">
+        Terminer
+        <ion-icon slot="end" name="checkmark-circle"></ion-icon>
+      </ion-button>
+      }
+    </div>
+    }
+  </div>
+  } @else if (quizFinished && quiz) {
+  <div class="results-container">
+    <ion-card class="results-card">
+      <ion-card-header>
+        <ion-card-title>Résultats</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <h1 class="score">{{ score }} / {{ quiz.questions.length }}</h1>
+        <p class="score-percentage">{{ (score / quiz.questions.length * 100).toFixed(0) }}%</p>
+
+        <div class="action-buttons">
+          <ion-button expand="block" (click)="restartQuiz()">
+            Recommencer
+          </ion-button>
+          <ion-button expand="block" fill="outline" (click)="goHome()">
+            Retour à l'accueil
+          </ion-button>
+        </div>
+      </ion-card-content>
+    </ion-card>
+  </div>
+  }
+</ion-content>

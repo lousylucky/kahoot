@@ -71,6 +71,13 @@ export class HomePage implements OnInit {
     event.preventDefault();
   }
 
+  async playGame(event: MouseEvent, quizId: string) {
+    event.stopPropagation();
+    event.preventDefault();
+
+    await this.router.navigate(['/play-quiz', quizId]);
+  }
+
   // Icone i formulaire ze storny ?
   async onLogout() {
     await this.auth.signOut();

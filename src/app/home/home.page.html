@@ -15,7 +15,7 @@
         <ion-card>
           <ion-card-header>
             <ion-card-title>{{ quiz.title }}
-              <ion-button class="ion-float-right" (click)="createGame($event)">
+              <ion-button class="ion-float-right" (click)="playGame($event, quiz.id)">
                 <ion-icon slot="icon-only" name="play-outline"></ion-icon>
               </ion-button>
             </ion-card-title>
@@ -23,7 +23,7 @@
           </ion-card-header>
 
           <ion-card-content>
-            <p>{{ quiz.description }}</p>
+            <p><strong>Description:</strong> {{ quiz.description }}</p>
             <p><strong>Number of questions:</strong> {{ quiz.questionsCount }}</p>
           </ion-card-content>
         </ion-card>
