@@ -4,9 +4,9 @@ import { QuizService } from '../services/quizService';
 import { Quiz } from '../models/quiz';
 import { AddQuizModalComponent } from '../components/add-quiz-modal/add-quiz-modal.component';
 import { Router } from '@angular/router';
-import { Auth } from '../services/auth';
 import { addIcons } from 'ionicons';
 import { add, playOutline, logOutOutline } from 'ionicons/icons';
+import { Auth } from '@angular/fire/auth';
 
 @Component({
   selector: 'app-home',
