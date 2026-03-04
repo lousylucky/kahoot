@@ -147,6 +147,6 @@ export class PlayQuizPage implements OnInit, OnDestroy, ViewWillEnter {
   }
 
   goHome() {
-    this.router.navigate(['/home']);
+    this.router.navigate(['/quizzes']);
   }
 }

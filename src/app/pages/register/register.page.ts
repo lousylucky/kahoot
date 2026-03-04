@@ -25,7 +25,7 @@ export class RegisterPage {
       await this.auth.createUser(this.email, this.password);
       await this.auth.sendVerificationEmail();
       this.successMessage = 'Account created! A verification email has been sent.';
-      setTimeout(() => this.router.navigateByUrl('/home'), 2000);
+      setTimeout(() => this.router.navigateByUrl('/quizzes'), 2000);
     } catch (e: any) {
       this.errorMessage = e.message;
     }

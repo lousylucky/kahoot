@@ -24,7 +24,7 @@ export class LoginPage {
   async onLogin() {
     try {
       await this.auth.signIn(this.email, this.password);
-      this.router.navigateByUrl('/home');
+      this.router.navigateByUrl('/quizzes');
     } catch (e: any) {
       this.errorMessage = e.message;
     }
