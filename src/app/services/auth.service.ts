@@ -47,7 +47,7 @@ export class AuthService {
     let toast: HTMLIonToastElement | undefined;
     try {
       await signInWithEmailAndPassword(this.auth, email, password);
-      this.router.navigateByUrl('/');
+      this.router.navigateByUrl('/quizzes');
       toast = await this.toastController.create({
         message: `Login successful`,
         duration: 1500,
@@ -66,12 +66,12 @@ export class AuthService {
   async signInWithGoogle() {
     await FirebaseAuthentication.signInWithGoogle();
 
-    this.router.navigateByUrl('/');
+    this.router.navigateByUrl('/quizzes');
   }
 
   async logout(): Promise<void> {
     await signOut(this.auth);
-    this.router.navigateByUrl('/');
+    this.router.navigateByUrl('/login');
   }
 
   sendResetPasswordLink(email: string): Promise<void> {
