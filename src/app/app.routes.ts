@@ -16,6 +16,11 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/register/register.page').then(m => m.RegisterPage),
   },
   {
+    path: 'play-quiz/:id',
+    loadComponent: () => import('./pages/play-quiz/play-quiz.page').then((m) => m.PlayQuizPage),
+    canActivate: [authGuard],
+  },
+  {
     path: '',
     redirectTo: 'login',
     pathMatch: 'full',
