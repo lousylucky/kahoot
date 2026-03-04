@@ -1,4 +1,11 @@
-import { ChangeDetectorRef, Component, Injector, OnDestroy, OnInit, runInInjectionContext } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  Injector,
+  OnDestroy,
+  OnInit,
+  runInInjectionContext,
+} from '@angular/core';
 import { ViewWillEnter } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -14,10 +21,6 @@ import {
   IonCardHeader,
   IonCardTitle,
   IonCardContent,
-  IonRadioGroup,
-  IonRadio,
-  IonItem,
-  IonLabel,
   IonIcon,
   IonProgressBar,
 } from '@ionic/angular/standalone';
@@ -42,10 +45,6 @@ import { chevronBack, chevronForward, checkmarkCircle } from 'ionicons/icons';
     IonCardHeader,
     IonCardTitle,
     IonCardContent,
-    IonRadioGroup,
-    IonRadio,
-    IonItem,
-    IonLabel,
     IonIcon,
     IonProgressBar,
     CommonModule,
@@ -58,8 +57,12 @@ export class PlayQuizPage implements OnInit, OnDestroy, ViewWillEnter {
   selectedAnswers: { [key: string]: number } = {};
   score = 0;
   quizFinished = false;
+  showingQuestionResult = false;
   private quizSub?: Subscription;
 
+  private readonly choiceSymbols = ['▲', '◆', '●', '■'];
+
+ 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -80,14 +83,19 @@ export class PlayQuizPage implements OnInit, OnDestroy, ViewWillEnter {
     this.selectedAnswers = {};
     this.score = 0;
     this.quizFinished = false;
+    this.showingQuestionResult = false;
     this.quiz = undefined;
     const quizId = this.route.snapshot.paramMap.get('id');
     if (quizId) {
       this.quizSub = runInInjectionContext(this.injector, () =>
         this.quizService.getById(quizId).subscribe({
-          next: (quiz) => { this.quiz = quiz; this.cdr.detectChanges(); },
-          error: (err) => console.error('Erreur lors du chargement du quiz:', err),
-        })
+          next: (quiz) => {
+            this.quiz = quiz;
+            this.cdr.detectChanges();
+          },
+          error: (err) =>
+            console.error('Erreur lors du chargement du quiz:', err),
+        }),
       );
     }
   }
@@ -105,6 +113,10 @@ export class PlayQuizPage implements OnInit, OnDestroy, ViewWillEnter {
     return (this.currentQuestionIndex + 1) / this.quiz.questions.length;
   }
 
+  getChoiceSymbol(index: number): string {
+    return this.choiceSymbols[index] ?? '●';
+  }
+
   selectAnswer(choiceId: number) {
     if (this.currentQuestion) {
       this.selectedAnswers[this.currentQuestion.id] = choiceId;
@@ -112,11 +124,16 @@ export class PlayQuizPage implements OnInit, OnDestroy, ViewWillEnter {
   }
 
   nextQuestion() {
-    if (
-      this.quiz &&
-      this.currentQuestionIndex < this.quiz.questions.length - 1
-    ) {
-      this.currentQuestionIndex++;
+    if (!this.showingQuestionResult) {
+      this.showingQuestionResult = true;
+    } else {
+      this.showingQuestionResult = false;
+      if (
+        this.quiz &&
+        this.currentQuestionIndex < this.quiz.questions.length - 1
+      ) {
+        this.currentQuestionIndex++;
+      }
     }
   }
 
@@ -128,14 +145,16 @@ export class PlayQuizPage implements OnInit, OnDestroy, ViewWillEnter {
 
   finishQuiz() {
     if (!this.quiz) return;
-
+    if (!this.showingQuestionResult) {
+      this.showingQuestionResult = true;
+      return;
+    }
     this.score = 0;
     this.quiz.questions.forEach((question) => {
       if (this.selectedAnswers[question.id] === question.correctChoiceIndex) {
         this.score++;
       }
     });
-
     this.quizFinished = true;
   }
 
@@ -144,6 +163,7 @@ export class PlayQuizPage implements OnInit, OnDestroy, ViewWillEnter {
     this.selectedAnswers = {};
     this.score = 0;
     this.quizFinished = false;
+    this.showingQuestionResult = false;
   }
 
   goHome() {
