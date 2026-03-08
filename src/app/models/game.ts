@@ -1,19 +1,23 @@
-import { User } from '@angular/fire/auth';
-import { Quiz } from './quiz';
+import { Choice } from './choice';
 
-export interface UserWithAlias extends User {
-  alias: string;
-}
-
-export type GameStatus = 'waiting' | 'in-progress' | 'finished';
+export type GameStatus = 'waiting' | 'in_game' | 'finished';
 
 export interface Game {
   id: string;
-  quiz: Quiz;
-  createdAt: Date;
-  players: UserWithAlias[];
-  status: GameStatus;
-  entryCode: string;
+  created: Date;
+  quizId: string;
   currentQuestionIndex: number;
-  currentQuestionStatus: 'in-progress' | 'done';
+  gameStatus: GameStatus;
+  adminId: string;
+  players: string[];
+  entryCode: string;
+}
+
+export interface GameQuestion {
+  id: string;
+  text: string;
+  choices: Choice[];
+  correctChoiceIndex: number;
+  order: number;
+  playerAnswers: { [uid: string]: number };
 }

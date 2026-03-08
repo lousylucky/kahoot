@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, Injector, OnDestroy, OnInit, runInInjectionContext } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, Injector, OnDestroy, OnInit, runInInjectionContext } from '@angular/core';
 import { ViewWillEnter } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -14,16 +14,15 @@ import {
   IonCardHeader,
   IonCardTitle,
   IonCardContent,
-  IonRadioGroup,
-  IonRadio,
-  IonItem,
-  IonLabel,
   IonIcon,
   IonProgressBar,
 } from '@ionic/angular/standalone';
+import { Auth } from '@angular/fire/auth';
 import { Quiz } from '../../models/quiz';
 import { Question } from '../../models/question';
+import { Game, GameQuestion } from '../../models/game';
 import { QuizService } from '../../services/quizService';
+import { GameService } from '../../services/game.service';
 import { addIcons } from 'ionicons';
 import { chevronBack, chevronForward, checkmarkCircle } from 'ionicons/icons';
 
@@ -42,10 +41,6 @@ import { chevronBack, chevronForward, checkmarkCircle } from 'ionicons/icons';
     IonCardHeader,
     IonCardTitle,
     IonCardContent,
-    IonRadioGroup,
-    IonRadio,
-    IonItem,
-    IonLabel,
     IonIcon,
     IonProgressBar,
     CommonModule,
@@ -58,7 +53,19 @@ export class PlayQuizPage implements OnInit, OnDestroy, ViewWillEnter {
   selectedAnswers: { [key: string]: number } = {};
   score = 0;
   quizFinished = false;
+
+  // Multiplayer
+  isMultiplayer = false;
+  isAdmin = false;
+  game?: Game;
+  gameQuestions: GameQuestion[] = [];
+
   private quizSub?: Subscription;
+  private gameSub?: Subscription;
+  private gameQuestionsSub?: Subscription;
+
+  private auth = inject(Auth);
+  private gameService = inject(GameService);
 
   constructor(
     private route: ActivatedRoute,
@@ -76,15 +83,50 @@ export class PlayQuizPage implements OnInit, OnDestroy, ViewWillEnter {
 
   ionViewWillEnter() {
     this.quizSub?.unsubscribe();
+    this.gameSub?.unsubscribe();
+    this.gameQuestionsSub?.unsubscribe();
     this.currentQuestionIndex = 0;
     this.selectedAnswers = {};
     this.score = 0;
     this.quizFinished = false;
     this.quiz = undefined;
-    const quizId = this.route.snapshot.paramMap.get('id');
-    if (quizId) {
+    this.game = undefined;
+    this.isMultiplayer = false;
+    this.isAdmin = false;
+
+    const id = this.route.snapshot.paramMap.get('id');
+    const mode = this.route.snapshot.queryParamMap.get('mode');
+    this.isMultiplayer = mode === 'multiplayer';
+
+    if (!id) return;
+
+    if (this.isMultiplayer) {
+      this.gameSub = runInInjectionContext(this.injector, () =>
+        this.gameService.getGameById(id).subscribe((game) => {
+          this.game = game;
+          this.currentQuestionIndex = game.currentQuestionIndex;
+          this.isAdmin = this.auth.currentUser?.uid === game.adminId;
+          if (game.gameStatus === 'finished') {
+            this.quizFinished = true;
+          }
+          this.cdr.detectChanges();
+        })
+      );
+      this.gameQuestionsSub = runInInjectionContext(this.injector, () =>
+        this.gameService.getGameQuestions(id).subscribe((questions) => {
+          this.gameQuestions = questions;
+          this.quiz = {
+            id: id,
+            title: 'Game',
+            description: '',
+            questions: questions,
+          };
+          this.cdr.detectChanges();
+        })
+      );
+    } else {
       this.quizSub = runInInjectionContext(this.injector, () =>
-        this.quizService.getById(quizId).subscribe({
+        this.quizService.getById(id).subscribe({
           next: (quiz) => { this.quiz = quiz; this.cdr.detectChanges(); },
           error: (err) => console.error('Erreur lors du chargement du quiz:', err),
         })
@@ -94,6 +136,8 @@ export class PlayQuizPage implements OnInit, OnDestroy, ViewWillEnter {
 
   ngOnDestroy() {
     this.quizSub?.unsubscribe();
+    this.gameSub?.unsubscribe();
+    this.gameQuestionsSub?.unsubscribe();
   }
 
   get currentQuestion(): Question | undefined {
@@ -105,23 +149,34 @@ export class PlayQuizPage implements OnInit, OnDestroy, ViewWillEnter {
     return (this.currentQuestionIndex + 1) / this.quiz.questions.length;
   }
 
-  selectAnswer(choiceId: number) {
-    if (this.currentQuestion) {
-      this.selectedAnswers[this.currentQuestion.id] = choiceId;
+  selectAnswer(choiceIndex: number) {
+    if (!this.currentQuestion) return;
+    this.selectedAnswers[this.currentQuestion.id] = choiceIndex;
+
+    if (this.isMultiplayer && this.game) {
+      const uid = this.auth.currentUser?.uid;
+      if (uid) {
+        this.gameService.submitAnswer(this.game.id, this.currentQuestion.id, uid, choiceIndex);
+      }
     }
   }
 
   nextQuestion() {
-    if (
-      this.quiz &&
-      this.currentQuestionIndex < this.quiz.questions.length - 1
-    ) {
-      this.currentQuestionIndex++;
+    if (!this.quiz) return;
+    if (this.isMultiplayer && this.game && this.isAdmin) {
+      const newIndex = this.game.currentQuestionIndex + 1;
+      if (newIndex < this.quiz.questions.length) {
+        this.gameService.nextQuestion(this.game.id, newIndex);
+      }
+    } else if (!this.isMultiplayer) {
+      if (this.currentQuestionIndex < this.quiz.questions.length - 1) {
+        this.currentQuestionIndex++;
+      }
     }
   }
 
   previousQuestion() {
-    if (this.currentQuestionIndex > 0) {
+    if (!this.isMultiplayer && this.currentQuestionIndex > 0) {
       this.currentQuestionIndex--;
     }
   }
@@ -129,14 +184,17 @@ export class PlayQuizPage implements OnInit, OnDestroy, ViewWillEnter {
   finishQuiz() {
     if (!this.quiz) return;
 
-    this.score = 0;
-    this.quiz.questions.forEach((question) => {
-      if (this.selectedAnswers[question.id] === question.correctChoiceIndex) {
-        this.score++;
-      }
-    });
-
-    this.quizFinished = true;
+    if (this.isMultiplayer && this.game && this.isAdmin) {
+      this.gameService.finishGame(this.game.id);
+    } else if (!this.isMultiplayer) {
+      this.score = 0;
+      this.quiz.questions.forEach((question) => {
+        if (this.selectedAnswers[question.id] === question.correctChoiceIndex) {
+          this.score++;
+        }
+      });
+      this.quizFinished = true;
+    }
   }
 
   restartQuiz() {
