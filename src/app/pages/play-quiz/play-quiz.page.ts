@@ -53,6 +53,7 @@ export class PlayQuizPage implements OnInit, OnDestroy, ViewWillEnter {
   selectedAnswers: { [key: string]: number } = {};
   score = 0;
   quizFinished = false;
+  showingQuestionResult = false;
 
   // Multiplayer
   isMultiplayer = false;
@@ -67,6 +68,9 @@ export class PlayQuizPage implements OnInit, OnDestroy, ViewWillEnter {
   private auth = inject(Auth);
   private gameService = inject(GameService);
 
+  private readonly choiceSymbols = ['▲', '◆', '●', '■'];
+
+ 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -89,6 +93,7 @@ export class PlayQuizPage implements OnInit, OnDestroy, ViewWillEnter {
     this.selectedAnswers = {};
     this.score = 0;
     this.quizFinished = false;
+    this.showingQuestionResult = false;
     this.quiz = undefined;
     this.game = undefined;
     this.isMultiplayer = false;
@@ -149,6 +154,11 @@ export class PlayQuizPage implements OnInit, OnDestroy, ViewWillEnter {
     return (this.currentQuestionIndex + 1) / this.quiz.questions.length;
   }
 
+  getChoiceSymbol(index: number): string {
+    return this.choiceSymbols[index] ?? '●';
+  }
+
+
   selectAnswer(choiceIndex: number) {
     if (!this.currentQuestion) return;
     this.selectedAnswers[this.currentQuestion.id] = choiceIndex;
@@ -163,6 +173,15 @@ export class PlayQuizPage implements OnInit, OnDestroy, ViewWillEnter {
 
   nextQuestion() {
     if (!this.quiz) return;
+
+    if (!this.showingQuestionResult) {
+      this.showingQuestionResult = true;
+      this.cdr.detectChanges();
+      return;
+    }
+
+    this.showingQuestionResult = false;
+
     if (this.isMultiplayer && this.game && this.isAdmin) {
       const newIndex = this.game.currentQuestionIndex + 1;
       if (newIndex < this.quiz.questions.length) {
@@ -173,6 +192,8 @@ export class PlayQuizPage implements OnInit, OnDestroy, ViewWillEnter {
         this.currentQuestionIndex++;
       }
     }
+
+    this.cdr.detectChanges();
   }
 
   previousQuestion() {
@@ -185,8 +206,18 @@ export class PlayQuizPage implements OnInit, OnDestroy, ViewWillEnter {
     if (!this.quiz) return;
 
     if (this.isMultiplayer && this.game && this.isAdmin) {
+      if (!this.showingQuestionResult) {
+        this.showingQuestionResult = true;
+        this.cdr.detectChanges();
+        return;
+      }
       this.gameService.finishGame(this.game.id);
     } else if (!this.isMultiplayer) {
+      if (!this.showingQuestionResult) {
+        this.showingQuestionResult = true;
+        this.cdr.detectChanges();
+        return;
+      }
       this.score = 0;
       this.quiz.questions.forEach((question) => {
         if (this.selectedAnswers[question.id] === question.correctChoiceIndex) {
@@ -194,6 +225,7 @@ export class PlayQuizPage implements OnInit, OnDestroy, ViewWillEnter {
         }
       });
       this.quizFinished = true;
+      this.cdr.detectChanges();
     }
   }
 
@@ -202,6 +234,7 @@ export class PlayQuizPage implements OnInit, OnDestroy, ViewWillEnter {
     this.selectedAnswers = {};
     this.score = 0;
     this.quizFinished = false;
+    this.showingQuestionResult = false;
   }
 
   goHome() {

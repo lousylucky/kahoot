@@ -1,93 +1,125 @@
-<ion-header [translucent]="true">
+﻿<ion-header [translucent]="true" class="kahoot-header">
   <ion-toolbar>
-    <ion-title>{{ quiz?.title || 'Quiz' }}</ion-title>
     <ion-button slot="start" fill="clear" (click)="goHome()">
       <ion-icon slot="icon-only" name="chevron-back"></ion-icon>
     </ion-button>
+    <ion-title>{{ quiz?.title || 'Quiz' }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
+<ion-content [fullscreen]="true" class="kahoot-content">
   @if (quiz && !quizFinished) {
-  <div class="quiz-container">
-    <ion-progress-bar [value]="progress" color="primary"></ion-progress-bar>
+    <div class="quiz-container">
+      <div class="top-panel">
+        <ion-progress-bar [value]="progress"></ion-progress-bar>
 
-    <div class="question-info">
-      <p>Question {{ currentQuestionIndex + 1 }} / {{ quiz.questions.length }}</p>
-    </div>
+        <div class="question-info">
+          <span>Question {{ currentQuestionIndex + 1 }} / {{ quiz.questions.length }}</span>
+          <span class="state-pill">{{ showingQuestionResult ? 'Resultat' : 'Choisis une reponse' }}</span>
+        </div>
 
-    @if (currentQuestion) {
-    <div class="question-card">
-      <h2 class="question-text">{{ currentQuestion.text }}</h2>
-
-      <div class="choices-grid">
-        @for (choice of currentQuestion.choices; track $index) {
-        <button
-          class="choice-btn choice-{{ $index }}"
-          [class.selected]="selectedAnswers[currentQuestion.id] === $index"
-          (click)="selectAnswer($index)">
-          {{ choice.text }}
-        </button>
+        @if (currentQuestion) {
+          <h2 class="question-text">{{ currentQuestion.text }}</h2>
         }
       </div>
-    </div>
 
-    <div class="navigation-buttons">
-      @if (!isMultiplayer) {
-      <ion-button (click)="previousQuestion()" [disabled]="currentQuestionIndex === 0" fill="outline">
-        <ion-icon slot="start" name="chevron-back"></ion-icon>
-        Précédent
-      </ion-button>
-      }
+    @if (currentQuestion && showingQuestionResult) {
+      <div class="result-grid">
+        @for (choice of currentQuestion.choices; track $index) {
+          <div
+            class="result-card choice-{{ $index }}"
+            [class.correct]="$index === currentQuestion.correctChoiceIndex"
+            [class.selected]="selectedAnswers[currentQuestion.id] === $index"
+          >
+            <div class="result-head">
+              <span class="shape">{{ getChoiceSymbol($index) }}</span>
+              <span class="votes">{{ selectedAnswers[currentQuestion.id] === $index ? 1 : 0 }}</span>
+            </div>
 
-      @if (currentQuestionIndex < quiz.questions.length - 1) {
-        @if (!isMultiplayer || isAdmin) {
-        <ion-button (click)="nextQuestion()" [disabled]="selectedAnswers[currentQuestion.id] === undefined">
-          {{ isMultiplayer ? 'Next Question' : 'Suivant' }}
-          <ion-icon slot="end" name="chevron-forward"></ion-icon>
-        </ion-button>
-        } @else {
-        <p class="waiting-text">Waiting for admin to advance...</p>
+            <div class="mini-bar">
+              <div
+                class="mini-fill"
+                [style.width.%]="selectedAnswers[currentQuestion.id] === $index ? 100 : 10"
+              ></div>
+            </div>
+
+            <p class="choice-label">{{ choice.text }}</p>
+
+            @if ($index === currentQuestion.correctChoiceIndex) {
+              <ion-icon name="checkmark-circle" class="correct-icon"></ion-icon>
+            }
+          </div>
         }
-      } @else {
-        @if (!isMultiplayer || isAdmin) {
-        <ion-button (click)="finishQuiz()" [disabled]="selectedAnswers[currentQuestion.id] === undefined" color="success">
-          Terminer
-          <ion-icon slot="end" name="checkmark-circle"></ion-icon>
-        </ion-button>
-        } @else {
-        <p class="waiting-text">Waiting for admin to finish...</p>
+      </div>
+    } @else if (currentQuestion) {
+      <div class="answers-grid">
+        @for (choice of currentQuestion.choices; track $index) {
+          <button
+            class="answer-tile choice-{{ $index }}"
+            [class.selected]="selectedAnswers[currentQuestion.id] === $index"
+            (click)="selectAnswer($index)"
+          >
+            <span class="shape">{{ getChoiceSymbol($index) }}</span>
+            <span class="label">{{ choice.text }}</span>
+          </button>
         }
-      }
-    </div>
+      </div>
+    }
+
+    
+
+    @if (currentQuestion) {
+      <div class="navigation-buttons">
+        <ion-button
+          (click)="previousQuestion()"
+          [disabled]="currentQuestionIndex === 0 || showingQuestionResult"
+          fill="outline"
+        >
+          <ion-icon slot="start" name="chevron-back"></ion-icon>
+          Precedent
+        </ion-button>
+
+        @if (currentQuestionIndex < quiz.questions.length - 1) {
+          <ion-button
+            (click)="nextQuestion()"
+            [disabled]="!showingQuestionResult && selectedAnswers[currentQuestion.id] === undefined"
+          >
+            {{ showingQuestionResult ? 'Suivant' : 'Verifier' }}
+            <ion-icon slot="end" name="chevron-forward"></ion-icon>
+          </ion-button>
+        } @else {
+          <ion-button
+            (click)="finishQuiz()"
+            [disabled]="!showingQuestionResult && selectedAnswers[currentQuestion.id] === undefined"
+            color="success"
+          >
+            {{ showingQuestionResult ? 'Terminer' : 'Verifier' }}
+            <ion-icon slot="end" name="checkmark-circle"></ion-icon>
+          </ion-button>
+        }
+      </div>
     }
   </div>
   } @else if (quizFinished && quiz) {
-  <div class="results-container">
-    <ion-card class="results-card">
-      <ion-card-header>
-        <ion-card-title>Résultats</ion-card-title>
-      </ion-card-header>
-      <ion-card-content>
-        @if (!isMultiplayer) {
-        <h1 class="score">{{ score }} / {{ quiz.questions.length }}</h1>
-        <p class="score-percentage">{{ (score / quiz.questions.length * 100).toFixed(0) }}%</p>
-        } @else {
-        <h1 class="score">Game Finished!</h1>
-        }
+    <div class="results-container">
+      <ion-card class="results-card">
+        <ion-card-header>
+          <ion-card-title>Resultats</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <h1 class="score">{{ score }} / {{ quiz.questions.length }}</h1>
+          <p class="score-percentage">{{ (score / quiz.questions.length * 100).toFixed(0) }}%</p>
 
-        <div class="action-buttons">
-          @if (!isMultiplayer) {
-          <ion-button expand="block" (click)="restartQuiz()">
-            Recommencer
-          </ion-button>
-          }
-          <ion-button expand="block" fill="outline" (click)="goHome()">
-            Retour à l'accueil
-          </ion-button>
-        </div>
-      </ion-card-content>
-    </ion-card>
-  </div>
+          <div class="action-buttons">
+            <ion-button expand="block" (click)="restartQuiz()">
+              Recommencer
+            </ion-button>
+            <ion-button expand="block" fill="outline" (click)="goHome()">
+              Retour a l'accueil
+            </ion-button>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    </div>
   }
 </ion-content>
