@@ -8,6 +8,8 @@ import { addIcons } from 'ionicons';
 import { add, playOutline, logOutOutline } from 'ionicons/icons';
 import { Auth } from '@angular/fire/auth';
 import { UserService } from '../services/user.service';
+import { GameService } from '../services/game.service';
+import { take } from 'rxjs/operators';
 
 @Component({
   selector: 'app-home',
@@ -22,6 +24,7 @@ export class HomePage implements OnInit {
   private quizService = inject(QuizService);
   private modalCtrl = inject(ModalController);
   private userService = inject(UserService);
+  private gameService = inject(GameService);
 
   constructor() {
     // Rejestrujemy ikonę plusa
@@ -76,16 +79,17 @@ export class HomePage implements OnInit {
     }
   }
 
-  async createGame(event: MouseEvent) {
-    event.stopPropagation();
-    event.preventDefault();
-  }
-
   async playGame(event: MouseEvent, quizId: string) {
     event.stopPropagation();
     event.preventDefault();
 
-    await this.router.navigate(['/play-quiz', quizId]);
+    const uid = this.auth.currentUser?.uid;
+    if (!uid) return;
+
+    this.quizService.getById(quizId).pipe(take(1)).subscribe(async (quiz) => {
+      const gameId = await this.gameService.createGame(quiz, uid);
+      this.router.navigate(['/game-lobby', gameId]);
+    });
   }
 
   // Icone i formulaire ze storny ?

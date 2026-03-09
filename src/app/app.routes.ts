@@ -23,6 +23,11 @@ export const routes: Routes = [
     ],
   },
   {
+    path: 'game-lobby/:id',
+    loadComponent: () => import('./pages/game-lobby/game-lobby.page').then((m) => m.GameLobbyPage),
+    canActivate: [authGuard],
+  },
+  {
     path: 'play-quiz/:id',
     loadComponent: () => import('./pages/play-quiz/play-quiz.page').then((m) => m.PlayQuizPage),
     canActivate: [authGuard],
