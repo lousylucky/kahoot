@@ -2,8 +2,8 @@ import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'io.ionic.starter',
-  appName: 'My Kahoot',
-  webDir: 'www'
+  appName: 'hello_world',
+  webDir: 'www/browser'
 };
 
 export default config;
