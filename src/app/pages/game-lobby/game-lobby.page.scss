@@ -47,6 +47,12 @@
   font-style: italic;
 }
 
+.leave-btn {
+  margin-top: 8px;
+  width: 100%;
+  max-width: 300px;
+}
+
 @keyframes pulse {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.5; }

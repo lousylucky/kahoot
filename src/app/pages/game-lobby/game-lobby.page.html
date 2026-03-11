@@ -28,6 +28,10 @@
         } @else {
           <p class="waiting-admin">Waiting for admin to start the game...</p>
         }
+
+        <ion-button expand="block" fill="outline" color="danger" class="leave-btn" (click)="goBack()">
+          Leave Lobby
+        </ion-button>
       </div>
     } @else {
       <ion-spinner name="crescent"></ion-spinner>
