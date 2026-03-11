@@ -1,81 +1,102 @@
-<ion-header>
+<ion-header [translucent]="true">
   <ion-toolbar color="primary">
-    <ion-buttons slot="start"><ion-button (click)="cancel()">Cancel</ion-button></ion-buttons>
-    <ion-title>New Topic</ion-title>
+    <ion-buttons slot="start">
+      <ion-button (click)="cancel()">
+        <ion-icon slot="icon-only" name="arrow-back-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>
+      <div style="text-align: center; font-weight: bold;">New Quiz</div>
+    </ion-title>
     <ion-buttons slot="end">
       <ion-button
         (click)="confirm()"
         [disabled]="quizForm().invalid() || !allQuestionsValid()"
       >
-        Add
+        Save
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding">
-  <div class="form-container">
+<ion-content class="add-quiz-content">
+  <div class="page-wrapper">
 
-    <ion-item fill="outline" class="custom-item">
-      <ion-label position="stacked">Quiz Title *</ion-label>
-      <ion-input [formField]="quizForm.title" placeholder="Enter title"></ion-input>
-    </ion-item>
+    <!-- ── Brand ── -->
+    <div class="brand">
+      <div class="brand-icon">✏️</div>
+      <h1 class="brand-name">Create a Quiz</h1>
+      <p class="brand-sub">Fill in the details and add your questions</p>
+    </div>
 
-    @if (quizForm.title().touched() && quizForm.title().invalid()) {
-      <div class="error-container">
-        @for (error of quizForm.title().errors(); track error) {
-          <ion-note color="danger">{{ error.message }}</ion-note>
-        }
+    <!-- ── Quiz info card ── -->
+    <div class="form-card">
+      <div class="field-group">
+        <label class="field-label">Quiz Title *</label>
+        <ion-item class="field-item" lines="none">
+          <ion-input [formField]="quizForm.title" placeholder="Enter title"></ion-input>
+        </ion-item>
       </div>
-    }
 
-    <ion-item fill="outline" class="custom-item ion-margin-top">
-      <ion-label position="stacked">Description *</ion-label>
-      <ion-textarea [formField]="quizForm.description" placeholder="Required..."></ion-textarea>
-    </ion-item>
+      @if (quizForm.title().touched() && quizForm.title().invalid()) {
+        <div class="error-container">
+          @for (error of quizForm.title().errors(); track error) {
+            <ion-note color="danger">{{ error.message }}</ion-note>
+          }
+        </div>
+      }
 
-    @if (quizForm.description().touched() && quizForm.description().invalid()) {
-      <div class="error-container">
-        @for (error of quizForm.description().errors(); track error) {
-          <ion-note color="danger">{{ error.message }}</ion-note>
-        }
+      <div class="field-group">
+        <label class="field-label">Description *</label>
+        <ion-item class="field-item" lines="none">
+          <ion-textarea [formField]="quizForm.description" placeholder="What is this quiz about?" [autoGrow]="true"></ion-textarea>
+        </ion-item>
       </div>
-    }
 
-    <!-- Questions -->
+      @if (quizForm.description().touched() && quizForm.description().invalid()) {
+        <div class="error-container">
+          @for (error of quizForm.description().errors(); track error) {
+            <ion-note color="danger">{{ error.message }}</ion-note>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- ── Questions ── -->
     @for (q of questions(); track $index; let qi = $index) {
-      <ion-card class="ion-margin-top">
-        <ion-card-header>
-          <div style="display:flex; align-items:center; justify-content:space-between;">
-            <ion-card-title>Question {{ qi + 1 }}</ion-card-title>
-            @if (questions().length > 1) {
-              <ion-button fill="clear" color="danger" size="small" (click)="removeQuestion(qi)">
-                Remove
-              </ion-button>
-            }
+      <div class="question-card">
+        <div class="question-header">
+          <span class="question-badge">Question {{ qi + 1 }}</span>
+          @if (questions().length > 1) {
+            <ion-button fill="clear" color="danger" size="small" (click)="removeQuestion(qi)">
+              Remove
+            </ion-button>
+          }
+        </div>
+
+        <div class="question-body">
+          <div class="field-group">
+            <label class="field-label">Question text *</label>
+            <ion-item class="field-item" lines="none">
+              <ion-input
+                [value]="q.text"
+                placeholder="Enter your question"
+                (ionInput)="updateQuestionText(qi, $any($event.target).value)"
+                (ionBlur)="markQuestionTouched(qi)">
+              </ion-input>
+            </ion-item>
           </div>
-        </ion-card-header>
 
-        <ion-card-content>
-          <ion-item fill="outline" class="custom-item">
-            <ion-label position="stacked">Question text *</ion-label>
-            <ion-input
-              [value]="q.text"
-              placeholder="Enter question"
-              (ionInput)="updateQuestionText(qi, $any($event.target).value)">
-            </ion-input>
-          </ion-item>
-
-          @if (!q.text.trim()) {
-            <ion-note color="warning">Question text is required.</ion-note>
+          @if ((touchedQuestions().has(qi) || submitted()) && !q.text.trim()) {
+            <div class="warning-note">Question text is required.</div>
           }
 
-          <div class="ion-margin-top" style="display:flex; align-items:center; justify-content:space-between;">
-            <ion-label>Choices (max {{ MAX_CHOICES }}) *</ion-label>
+          <div class="choices-header">
+            <label class="field-label" style="margin-bottom: 0;">Choices (max {{ MAX_CHOICES }}) *</label>
             <ion-button size="small" fill="outline"
                         (click)="addChoice(qi)"
                         [disabled]="q.choices.length >= MAX_CHOICES">
-              + Add choice
+              + Add
             </ion-button>
           </div>
 
@@ -83,42 +104,53 @@
             [value]="q.correctChoiceIndex"
             (ionChange)="setCorrect(qi, $event.detail.value)"
           >
-            <ion-list>
+            <div class="choices-list">
               @for (c of q.choices; track $index; let ci = $index) {
-                <ion-item>
-                  <ion-radio slot="start" [value]="ci"></ion-radio>
-                  <ion-input
-                    [value]="c.text"
-                    placeholder="Choice text"
-                    (ionInput)="updateChoiceText(qi, ci, $any($event.target).value)">
-                  </ion-input>
-                  <ion-button slot="end" fill="clear" color="danger"
+                <div class="choice-row">
+                  <ion-radio [value]="ci"></ion-radio>
+                  <ion-item class="field-item choice-input" lines="none">
+                    <ion-input
+                      [value]="c.text"
+                      placeholder="Choice {{ ci + 1 }}"
+                      (ionInput)="updateChoiceText(qi, ci, $any($event.target).value)">
+                    </ion-input>
+                  </ion-item>
+                  <ion-button fill="clear" color="danger" size="small"
                               [disabled]="q.choices.length <= 2"
                               (click)="removeChoice(qi, ci)">
-                    Remove
+                    ✕
                   </ion-button>
-                </ion-item>
+                </div>
               }
-            </ion-list>
+            </div>
           </ion-radio-group>
 
-          @if (q.choices.length < 2) {
-            <ion-note color="warning">At least 2 choices are required.</ion-note>
+          @if (submitted() && q.choices.length < 2) {
+            <div class="warning-note">At least 2 choices are required.</div>
           }
-
-          @if (hasEmptyChoices(q)) {
-            <ion-note color="warning">Please fill in all choices.</ion-note>
+          @if (submitted() && hasEmptyChoices(q)) {
+            <div class="warning-note">Please fill in all choices.</div>
           }
-
-          @if (q.choices[q.correctChoiceIndex]?.text?.trim()?.length === 0) {
-            <ion-note color="warning">Select a non-empty choice as the correct answer.</ion-note>
+          @if (submitted() && q.choices[q.correctChoiceIndex]?.text?.trim()?.length === 0) {
+            <div class="warning-note">Select a non-empty choice as the correct answer.</div>
           }
-        </ion-card-content>
-      </ion-card>
+        </div>
+      </div>
     }
 
-    <ion-button expand="block" fill="outline" class="ion-margin-top" (click)="addQuestion()">
+    <!-- ── Add question button ── -->
+    <ion-button expand="block" fill="outline" class="add-question-btn" (click)="addQuestion()">
       + Add Question
+    </ion-button>
+
+    <!-- ── Submit button ── -->
+    <ion-button
+      expand="block"
+      class="submit-btn"
+      (click)="confirm()"
+      [disabled]="quizForm().invalid() || !allQuestionsValid()"
+    >
+      Create Quiz
     </ion-button>
 
   </div>

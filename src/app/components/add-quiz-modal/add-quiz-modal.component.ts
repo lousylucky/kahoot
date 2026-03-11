@@ -1,40 +1,5 @@
-// import { Component, inject, signal } from '@angular/core';
-// import { IonicModule, ModalController } from '@ionic/angular';
-// import { FormsModule } from '@angular/forms';
-// import { form, required, FormField } from '@angular/forms/signals';
-
-// @Component({
-//   selector: 'app-add-quiz-modal',
-//   standalone: true,
-//   imports: [IonicModule, FormsModule, FormField],
-//   templateUrl: './add-quiz-modal.component.html',
-//   styleUrls: ['./add-quiz-modal.component.scss'],
-// })
-// export class AddQuizModalComponent {
-//   private modalCtrl = inject(ModalController);
-
-//   quizModel = signal({
-//     title: '',
-//     description: '',
-//   });
-
-//   quizForm = form(this.quizModel, (path) => {
-//     required(path.title, { message: 'Title is required' });
-//     required(path.description, { message: 'Description is required' });
-//   });
-
-//   cancel() {
-//     return this.modalCtrl.dismiss(null, 'cancel');
-//   }
-
-//   confirm() {
-//     const data = this.quizModel();
-//     this.modalCtrl.dismiss({ ...data, questions: [] }, 'confirm');
-//   }
-// }
-
 import { Component, inject, signal, computed } from '@angular/core';
-import { ModalController } from '@ionic/angular/standalone';
+import { Router } from '@angular/router';
 import {
   IonHeader,
   IonToolbar,
@@ -43,21 +8,20 @@ import {
   IonButton,
   IonContent,
   IonItem,
-  IonLabel,
   IonInput,
   IonTextarea,
   IonNote,
-  IonCard,
-  IonCardHeader,
-  IonCardTitle,
-  IonCardContent,
   IonRadioGroup,
   IonRadio,
-  IonList,
+  IonIcon,
 } from '@ionic/angular/standalone';
 import { FormsModule } from '@angular/forms';
 import { form, required, FormField } from '@angular/forms/signals';
+import { addIcons } from 'ionicons';
+import { arrowBackOutline } from 'ionicons/icons';
 import type { Question } from '../../models/question';
+import type { Quiz } from '../../models/quiz';
+import { QuizService } from '../../services/quizService';
 
 interface QuestionDraft {
   text: string;
@@ -70,21 +34,25 @@ function emptyQuestion(): QuestionDraft {
 }
 
 @Component({
-  selector: 'app-add-quiz-modal',
+  selector: 'app-add-quiz',
   standalone: true,
   imports: [
     IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent,
-    IonItem, IonLabel, IonInput, IonTextarea, IonNote, IonCard,
-    IonCardHeader, IonCardTitle, IonCardContent, IonRadioGroup, IonRadio, IonList,
+    IonItem, IonInput, IonTextarea, IonNote, IonRadioGroup, IonRadio, IonIcon,
     FormsModule, FormField,
   ],
   templateUrl: './add-quiz-modal.component.html',
   styleUrls: ['./add-quiz-modal.component.scss'],
 })
 export class AddQuizModalComponent {
-  private modalCtrl = inject(ModalController);
+  private router = inject(Router);
+  private quizService = inject(QuizService);
 
   readonly MAX_CHOICES = 5;
+
+  constructor() {
+    addIcons({ arrowBackOutline });
+  }
 
   quizModel = signal({
     title: '',
@@ -96,6 +64,9 @@ export class AddQuizModalComponent {
     required(path.title, { message: 'Title is required' });
     required(path.description, { message: 'Description is required' });
   });
+
+  submitted = signal(false);
+  touchedQuestions = signal<Set<number>>(new Set());
 
   questions = computed(() => this.quizModel().questions);
 
@@ -115,8 +86,14 @@ export class AddQuizModalComponent {
     this.quizModel().questions.every((q) => this.questionValid(q))
   );
 
+  markQuestionTouched(qIndex: number) {
+    const current = new Set(this.touchedQuestions());
+    current.add(qIndex);
+    this.touchedQuestions.set(current);
+  }
+
   cancel() {
-    return this.modalCtrl.dismiss(null, 'cancel');
+    this.router.navigateByUrl('/quizzes');
   }
 
   // ── Question-level ──────────────────────────────────────────────────────────
@@ -197,20 +174,28 @@ export class AddQuizModalComponent {
 
   // ── Submit ───────────────────────────────────────────────────────────────────
 
-  confirm() {
+  async confirm() {
+    this.submitted.set(true);
     const data = this.quizModel();
     if (!this.allQuestionsValid()) return;
 
-    const questions: Question[] = data.questions.map((q, i) => ({
-      id: String(i + 1),
+    const quizId = this.quizService.generateQuizId();
+
+    const questions: Question[] = data.questions.map((q) => ({
+      id: this.quizService.generateQuestionId(quizId),
       text: q.text.trim(),
       choices: q.choices.map((c) => ({ text: c.text.trim() })),
       correctChoiceIndex: q.correctChoiceIndex,
     }));
 
-    this.modalCtrl.dismiss(
-      { title: data.title.trim(), description: data.description.trim(), questions },
-      'confirm'
-    );
+    const newQuiz: Quiz = {
+      id: quizId,
+      title: data.title.trim(),
+      description: data.description.trim(),
+      questions,
+    };
+
+    await this.quizService.setQuiz(newQuiz);
+    this.router.navigateByUrl('/quizzes');
   }
 }
