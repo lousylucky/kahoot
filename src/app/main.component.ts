@@ -10,6 +10,7 @@ import { gameControllerOutline, playCircle } from 'ionicons/icons';
 
 @Component({
   selector: 'app-main',
+  standalone: true,
   template: `<ion-tabs>
     <ion-tab-bar slot="bottom">
       <ion-tab-button tab="quizzes">

@@ -17,7 +17,7 @@ addIcons({ eyeOutline, eyeOffOutline });
   selector: 'app-register',
   templateUrl: 'register.page.html',
   styleUrls: ['register.page.scss'],
-  imports: [IonButtons, IonBackButton, IonTitle, IonHeader, IonToolbar, 
+  imports: [IonButtons, IonBackButton, IonTitle, IonHeader, IonToolbar,
     IonButton, IonContent, IonInput, IonItem, IonIcon,
     CommonModule, ReactiveFormsModule, RouterLink,
   ],

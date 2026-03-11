@@ -1,11 +1,11 @@
-﻿<ion-header [translucent]="true" class="kahoot-header">
-  <ion-toolbar>
-    <ion-button slot="start" fill="clear" (click)="goHome()">
-      <ion-icon slot="icon-only" name="chevron-back"></ion-icon>
-    </ion-button>
-    <ion-title>{{ quiz?.title || 'Quiz' }}</ion-title>
-  </ion-toolbar>
-</ion-header>
+<ion-header [translucent]="true" class="kahoot-header">
+    <ion-toolbar>
+      <ion-button slot="start" fill="clear" (click)="goHome()">
+        <ion-icon slot="icon-only" name="chevron-back"></ion-icon>
+      </ion-button>
+      <ion-title>{{ quiz?.title || 'Quiz' }}</ion-title>
+    </ion-toolbar>
+  </ion-header>
 
 <ion-content [fullscreen]="true" class="kahoot-content">
   @if (quiz && !quizFinished) {
@@ -37,17 +37,11 @@
             <ion-icon name="checkmark-circle" class="correct-icon"></ion-icon>
             }
           </span>
-
-
         </div>
 
         <div class="mini-bar">
           <div class="mini-fill" [style.width.%]="selectedAnswers[currentQuestion.id] === $index ? 100 : 10"></div>
-
         </div>
-
-        <!-- <p class="choice-label">{{ choice.text }}</p> -->
-
       </div>
       }
     </div>
@@ -62,9 +56,6 @@
       }
     </div>
     }
-    Which skill are you most proud of
-
-
 
     @if (currentQuestion) {
 

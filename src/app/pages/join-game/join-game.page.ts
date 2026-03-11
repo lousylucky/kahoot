@@ -1,7 +1,15 @@
 import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { IonicModule } from '@ionic/angular';
+import {
+  IonHeader,
+  IonToolbar,
+  IonTitle,
+  IonContent,
+  IonItem,
+  IonInput,
+  IonButton,
+} from '@ionic/angular/standalone';
 import { Auth } from '@angular/fire/auth';
 import { GameService } from '../../services/game.service';
 
@@ -10,7 +18,7 @@ import { GameService } from '../../services/game.service';
   templateUrl: 'join-game.page.html',
   styleUrls: ['join-game.page.scss'],
   standalone: true,
-  imports: [IonicModule, FormsModule],
+  imports: [IonHeader, IonToolbar, IonTitle, IonContent, IonItem, IonInput, IonButton, FormsModule],
 })
 export class JoinGamePage {
   private gameService = inject(GameService);

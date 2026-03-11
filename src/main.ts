@@ -3,7 +3,9 @@ import { RouteReuseStrategy, provideRouter, withPreloading, PreloadAllModules } 
 import { IonicRouteStrategy, provideIonicAngular } from '@ionic/angular/standalone';
 import { provideFirebaseApp, initializeApp } from '@angular/fire/app';
 import { provideFirestore, getFirestore } from '@angular/fire/firestore';
-import { provideAuth, getAuth } from '@angular/fire/auth';
+import { provideAuth, initializeAuth } from '@angular/fire/auth';
+import { getApp } from 'firebase/app';
+import { browserLocalPersistence, indexedDBLocalPersistence } from 'firebase/auth';
 
 import { routes } from './app/app.routes';
 import { AppComponent } from './app/app.component';
@@ -16,6 +18,10 @@ bootstrapApplication(AppComponent, {
     provideRouter(routes, withPreloading(PreloadAllModules)),
     provideFirebaseApp(() => initializeApp(environment.firebaseConfig)),
     provideFirestore(() => getFirestore()),
-    provideAuth(() => getAuth()),
+    provideAuth(() =>
+      initializeAuth(getApp(), {
+        persistence: [browserLocalPersistence, indexedDBLocalPersistence],
+      }),
+    ),
   ],
 });
