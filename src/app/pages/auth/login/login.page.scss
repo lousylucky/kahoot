@@ -51,7 +51,7 @@ ion-content.login-content {
   .brand-sub {
     font-family: var(--font-body);
     font-size: 0.9rem;
-    color: var(--ion-color-step-500);
+    color: grey;
     margin: 0;
   }
 }
@@ -122,7 +122,7 @@ ion-content.login-content {
   }
 
   ion-input {
-    --color: var(--ion-color-step-900);
+    --color: grey;
     --placeholder-color: var(--ion-color-step-400);
     font-family: var(--font-body);
     font-size: 0.95rem;
@@ -140,6 +140,7 @@ ion-content.login-content {
   text-align: right;
   margin-bottom: 22px;
   margin-top: -6px;
+  color : grey;
 }
 
 /* ── Links ───────────────────────────────────────────── */

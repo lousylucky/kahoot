@@ -95,7 +95,7 @@ ion-header ion-toolbar {
 
     ion-input,
     ion-textarea {
-      --color: var(--ion-color-step-900);
+      --color: grey;
       --placeholder-color: var(--ion-color-step-400);
       font-family: var(--font-body);
       font-size: 0.95rem;
@@ -265,7 +265,7 @@ ion-header ion-toolbar {
             }
 
             ion-input {
-              --color: var(--ion-color-step-900);
+              --color: grey;
               --placeholder-color: var(--ion-color-step-400);
               font-family: var(--font-body);
               font-size: 0.9rem;
