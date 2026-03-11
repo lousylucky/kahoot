@@ -22,13 +22,15 @@
 
 .kahoot-content {
   --background: radial-gradient(circle at 20% 20%, #f3f3f3 0%, #e7e7e7 55%, #dddddd 100%);
+  --padding-bottom: env(safe-area-inset-bottom);
 }
 
 .quiz-container {
   display: flex;
   flex-direction: column;
   padding: 16px;
-  height: 92%;
+  gap: 10px;
+  height: calc(90% - var(--padding-bottom));
   overflow-y: auto;
 }
 
@@ -36,7 +38,7 @@
   background: rgba(255, 255, 255, 0.8);
   border: 1px solid rgba(0, 0, 0, 0.05);
   border-radius: 16px;
-  padding: 12px;
+  padding: 19px;
   backdrop-filter: blur(4px);
 
   ion-progress-bar {
@@ -182,11 +184,15 @@
   line-height: 1.25;
 }
 
+.votes-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
 .correct-icon {
-  position: absolute;
-  right: 10px;
-  bottom: 10px;
   font-size: 1.45rem;
+  color: #26890c;
 }
 
 .choice-0 {
@@ -214,7 +220,7 @@
   justify-content: space-between;
   align-items: center;
   margin-top: auto; // pousse les boutons vers le bas
-  padding: 16px 0;
+  padding: 16px 0 calc(16px + env(safe-area-inset-bottom));
   gap: 8px;
 
   ion-button {
@@ -229,7 +235,7 @@
   min-height: 100%;
   display: grid;
   place-items: center;
-  padding: 16px;
+  padding: 16px 16px calc(16px + env(safe-area-inset-bottom));
 }
 
 .results-card {
