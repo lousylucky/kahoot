@@ -34,16 +34,16 @@
           <span class="votes-group">
             <span class="votes">{{ selectedAnswers[currentQuestion.id] === $index ? 1 : 0 }}</span>
             @if ($index === currentQuestion.correctChoiceIndex) {
-              <ion-icon name="checkmark-circle" class="correct-icon"></ion-icon>
+            <ion-icon name="checkmark-circle" class="correct-icon"></ion-icon>
             }
           </span>
 
-        
+
         </div>
 
         <div class="mini-bar">
           <div class="mini-fill" [style.width.%]="selectedAnswers[currentQuestion.id] === $index ? 100 : 10"></div>
-          
+
         </div>
 
         <!-- <p class="choice-label">{{ choice.text }}</p> -->
@@ -62,28 +62,39 @@
       }
     </div>
     }
+    Which skill are you most proud of
 
 
 
     @if (currentQuestion) {
+
     <div class="navigation-buttons">
+      @if (!isMultiplayer) {
       <ion-button (click)="previousQuestion()" [disabled]="currentQuestionIndex === 0 || showingQuestionResult"
         fill="outline">
         <ion-icon slot="start" name="chevron-back"></ion-icon>
         Precedent
       </ion-button>
+      }
 
-      @if (currentQuestionIndex < quiz.questions.length - 1) { <ion-button (click)="nextQuestion()"
+      @if (currentQuestionIndex < quiz.questions.length - 1) { @if (!isMultiplayer || isAdmin) { <ion-button
+        (click)="nextQuestion()"
         [disabled]="!showingQuestionResult && selectedAnswers[currentQuestion.id] === undefined">
         {{ showingQuestionResult ? 'Suivant' : 'Verifier' }}
         <ion-icon slot="end" name="chevron-forward"></ion-icon>
-        </ion-button>
+        </ion-button>}@else {
+        <p class="waiting-text">Waiting for admin to advance...</p>
+        }
         } @else {
+        @if (!isMultiplayer || isAdmin) {
         <ion-button (click)="finishQuiz()"
           [disabled]="!showingQuestionResult && selectedAnswers[currentQuestion.id] === undefined" color="success">
           {{ showingQuestionResult ? 'Terminer' : 'Verifier' }}
           <ion-icon slot="end" name="checkmark-circle"></ion-icon>
         </ion-button>
+        } @else {
+        <p class="waiting-text">Waiting for admin to finish...</p>
+        }
         }
     </div>
     }
