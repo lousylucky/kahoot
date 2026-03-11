@@ -9,7 +9,7 @@ import { RouterLink } from '@angular/router';
 import { addIcons } from 'ionicons';
 import { eyeOutline, eyeOffOutline } from 'ionicons/icons';
 import {
-  IonButton, IonContent, IonInput, IonItem, IonIcon, IonToolbar, IonHeader, IonTitle } from '@ionic/angular/standalone';
+  IonButton, IonContent, IonInput, IonItem, IonIcon, IonToolbar, IonHeader, IonTitle, IonBackButton, IonButtons } from '@ionic/angular/standalone';
 
 addIcons({ eyeOutline, eyeOffOutline });
 
@@ -17,7 +17,7 @@ addIcons({ eyeOutline, eyeOffOutline });
   selector: 'app-register',
   templateUrl: 'register.page.html',
   styleUrls: ['register.page.scss'],
-  imports: [IonTitle, IonHeader, IonToolbar, 
+  imports: [IonButtons, IonBackButton, IonTitle, IonHeader, IonToolbar, 
     IonButton, IonContent, IonInput, IonItem, IonIcon,
     CommonModule, ReactiveFormsModule, RouterLink,
   ],
