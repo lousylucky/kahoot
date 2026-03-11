@@ -1,68 +1,39 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-
+import { RouterLink } from '@angular/router';
 import {
-  IonButton,
-  IonHeader,
-  IonContent,
-  IonToolbar,
-  IonTitle,
-  IonInput,
-} from '@ionic/angular/standalone';
+  IonButton, IonContent, IonInput, IonItem, IonIcon, IonToolbar, IonHeader, IonTitle } from '@ionic/angular/standalone';
+import { addIcons } from 'ionicons';
+import { mailOutline, arrowBackOutline, checkmarkCircleOutline } from 'ionicons/icons';
 import { AuthService } from 'src/app/services/auth.service';
+
+addIcons({ mailOutline, arrowBackOutline, checkmarkCircleOutline });
 
 @Component({
   selector: 'app-password-retrieve',
-  template: ` <form [formGroup]="passwordRetrieveForm" (ngSubmit)="onSubmit()">
-    <ion-header [translucent]="true">
-      <ion-toolbar>
-        <ion-title>Retrieve Password</ion-title>
-      </ion-toolbar>
-    </ion-header>
-
-    <ion-content [fullscreen]="true">
-      <ion-header collapse="condense">
-        <ion-toolbar>
-          <ion-title size="large">Retrieve Password</ion-title>
-        </ion-toolbar>
-      </ion-header>
-      <ion-input
-        formControlName="email"
-        fill="solid"
-        label="Email"
-        labelPlacement="floating"
-        placeholder="user@gmail.com"
-        type="email"
-        [errorText]="invalidEmailText"
-      ></ion-input>
-      <ion-button expand="block" type="submit">Send email</ion-button>
-    </ion-content>
-  </form>`,
-  imports: [
-    IonButton,
-    IonHeader,
-    IonContent,
-    IonToolbar,
-    IonTitle,
-    IonInput,
-    CommonModule,
-    ReactiveFormsModule,
+  templateUrl: './password-retrieve.page.html',
+  styleUrls: ['./password-retrieve.page.scss'],
+  imports: [IonTitle, IonHeader, IonToolbar, 
+    IonButton, IonContent, IonInput, IonItem, IonIcon,
+    CommonModule, ReactiveFormsModule, RouterLink,
   ],
 })
 export class PasswordRetrievePage {
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
 
-  invalidEmailText = 'Not a valid email';
+  submitted = signal(false);
 
   passwordRetrieveForm = this.fb.group({
-    email: ['', Validators.email],
+    email: ['', [Validators.required, Validators.email]],
   });
 
+  get f() { return this.passwordRetrieveForm.controls; }
+
   onSubmit() {
-    this.authService.sendResetPasswordLink(
-      this.passwordRetrieveForm.value.email!
-    );
+    if (this.passwordRetrieveForm.invalid) return;
+    this.authService.sendResetPasswordLink(this.passwordRetrieveForm.value.email!);
+    this.submitted.set(true);
   }
 }
