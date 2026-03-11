@@ -8,12 +8,15 @@ import {
   signOut,
   sendPasswordResetEmail,
   sendEmailVerification,
+  GoogleAuthProvider,
+  signInWithPopup,
 } from '@angular/fire/auth';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { FirebaseAuthentication } from '@capacitor-firebase/authentication';
 import { UserService } from './user.service';
 import { ToastController } from '@ionic/angular/standalone';
+import { Capacitor } from '@capacitor/core';
 
 @Injectable({
   providedIn: 'root',
@@ -64,10 +67,22 @@ export class AuthService {
   }
 
   async signInWithGoogle() {
-    await FirebaseAuthentication.signInWithGoogle();
 
-    this.router.navigateByUrl('/quizzes');
+  if (Capacitor.isNativePlatform()) {
+
+    const result = await FirebaseAuthentication.signInWithGoogle();
+    console.log(result);
+
+  } else {
+
+    const provider = new GoogleAuthProvider();
+    const result = await signInWithPopup(this.auth, provider);
+    console.log(result);
+
   }
+
+  this.router.navigateByUrl('/quizzes');
+}
 
   async logout(): Promise<void> {
     await signOut(this.auth);

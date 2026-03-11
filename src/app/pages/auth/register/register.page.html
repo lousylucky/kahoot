@@ -1,0 +1,130 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/login" text="" icon="arrow-back-outline"></ion-back-button>
+    </ion-buttons>
+    <ion-title>
+      <div style="text-align: center;">
+        <div style="font-size: 1.2em; font-weight: bold;">My Kahoot</div>
+      </div>
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="register-content">
+  <div class="register-wrapper">
+
+    <!-- ── Brand ── -->
+    <div class="brand">
+      <div class="brand-icon">🎮</div>
+      <h1 class="brand-name">Join Kahoot</h1>
+      <p class="brand-sub">Create your account and start quizzing</p>
+    </div>
+
+    <!-- ── Card ── -->
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="register-card">
+
+      <!-- Email -->
+      <div class="field-group">
+        <label class="field-label">Email</label>
+        <ion-item class="field-item" lines="none">
+          <ion-input
+            formControlName="email"
+            placeholder="you@example.com"
+            type="email"
+            autocomplete="email"
+          ></ion-input>
+        </ion-item>
+        @if (f['email'].touched && f['email'].invalid) {
+          <p class="field-error">Please enter a valid email address.</p>
+        }
+      </div>
+
+      <!-- Alias -->
+      <div class="field-group">
+        <label class="field-label">Alias</label>
+        <ion-item class="field-item" lines="none">
+          <ion-input
+            formControlName="alias"
+            placeholder="Your display name"
+            type="text"
+            autocomplete="nickname"
+          ></ion-input>
+        </ion-item>
+        @if (f['alias'].touched && f['alias'].invalid) {
+          <p class="field-error">Alias is required.</p>
+        }
+      </div>
+
+      <!-- Password -->
+      <div class="field-group">
+        <label class="field-label">Password</label>
+        <ion-item class="field-item" lines="none">
+          <ion-input
+            [type]="showPassword ? 'text' : 'password'"
+            formControlName="password"
+            placeholder="••••••••"
+            autocomplete="new-password"
+          >
+            <ion-button slot="end" fill="clear" type="button"
+                        class="eye-btn" (click)="showPassword = !showPassword">
+              <ion-icon [name]="showPassword ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+            </ion-button>
+          </ion-input>
+        </ion-item>
+        @if (f['password'].touched && f['password'].invalid) {
+          <p class="field-error">
+            Min. 6 chars with uppercase, lowercase, number &amp; special character.
+          </p>
+        }
+        <!-- Strength bar -->
+        @if (f['password'].value) {
+          <div class="strength-bar">
+            <div class="strength-track">
+              <div class="strength-fill" [class]="strengthClass"></div>
+            </div>
+            <span class="strength-label" [class]="strengthClass">{{ strengthLabel }}</span>
+          </div>
+        }
+      </div>
+
+      <!-- Confirm Password -->
+      <div class="field-group">
+        <label class="field-label">Confirm Password</label>
+        <ion-item class="field-item" lines="none">
+          <ion-input
+            [type]="showConfirm ? 'text' : 'password'"
+            formControlName="passwordConfirm"
+            placeholder="••••••••"
+            autocomplete="new-password"
+          >
+            <ion-button slot="end" fill="clear" type="button"
+                        class="eye-btn" (click)="showConfirm = !showConfirm">
+              <ion-icon [name]="showConfirm ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+            </ion-button>
+          </ion-input>
+        </ion-item>
+        @if (f['passwordConfirm'].touched && f['passwordConfirm'].invalid) {
+          <p class="field-error">Passwords do not match.</p>
+        }
+      </div>
+
+      <!-- Submit -->
+      <ion-button
+        expand="block"
+        type="submit"
+        class="submit-btn"
+        [disabled]="registerForm.invalid"
+      >
+        Create account
+      </ion-button>
+
+      <!-- Login link -->
+      <p class="login-row">
+        Already have an account?
+        <a routerLink="/login" class="link-primary">Sign in</a>
+      </p>
+
+    </form>
+  </div>
+</ion-content>

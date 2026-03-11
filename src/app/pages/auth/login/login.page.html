@@ -1,0 +1,89 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-title>
+      <div style="text-align: center;">
+        <div style="font-size: 1.2em; font-weight: bold;">My Kahoot</div>
+      </div>
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+
+<ion-content [fullscreen]="true" class="login-content">
+
+  <div class="login-wrapper">
+
+    <!-- ── Brand ── -->
+    <div class="brand">
+      <div class="brand-icon">🎮</div>
+      <h1 class="brand-name">My Kahoot</h1>
+      <p class="brand-sub">Sign in to access your quizzes</p>
+    </div>
+
+    <!-- ── Card ── -->
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-card">
+
+      <!-- Email -->
+      <div class="field-group">
+        <label class="field-label">Email</label>
+        <ion-item class="field-item" lines="none">
+          <ion-input
+            formControlName="email"
+            placeholder="you@example.com"
+            type="email"
+            autocomplete="email"
+          ></ion-input>
+        </ion-item>
+      </div>
+
+      <!-- Password -->
+      <div class="field-group">
+        <label class="field-label">Password</label>
+        <ion-item class="field-item" lines="none">
+          <ion-input
+            [type]="showPassword ? 'text' : 'password'"
+            formControlName="password"
+            placeholder="••••••••"
+            autocomplete="current-password"
+          >
+            <ion-button slot="end" fill="clear" (click)="togglePassword()" type="button" class="eye-btn">
+              <ion-icon [name]="showPassword ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+            </ion-button>
+          </ion-input>
+        </ion-item>
+      </div>
+
+      <!-- Forgot -->
+      <div class="forgot-row">
+        <a routerLink="/password-retrieve" class="link-subtle">Forgot your password?</a>
+      </div>
+
+      <!-- Submit -->
+      <ion-button
+        expand="block"
+        type="submit"
+        class="submit-btn"
+        [disabled]="loginForm.invalid"
+      >
+        Sign in
+      </ion-button>
+
+      <!-- Divider -->
+      <div class="divider"><span>or</span></div>
+
+      <!-- Google (commenté mais stylé) -->
+      <ion-button expand="block" fill="outline" type="button" class="google-btn" (click)="loginWithGoogle()">
+        <ion-icon name="logo-google" slot="start"></ion-icon>
+        Continue with Google
+      </ion-button>
+
+      <!-- Register -->
+      <p class="register-row">
+        No account yet?
+        <a routerLink="/register" class="link-primary">Register here</a>
+      </p>
+
+    </form>
+  </div>
+
+</ion-content>

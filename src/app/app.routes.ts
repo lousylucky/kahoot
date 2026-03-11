@@ -40,4 +40,8 @@ export const routes: Routes = [
     path: 'register',
     loadComponent: () => import('./pages/auth/register/register.page').then(m => m.RegisterPage),
   },
+  {
+    path: 'password-retrieve',
+    loadComponent: () => import('./pages/auth/password-retrieve/password-retrieve.page').then(m => m.PasswordRetrievePage),
+  },
 ];
