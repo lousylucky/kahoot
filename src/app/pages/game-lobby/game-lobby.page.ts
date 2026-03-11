@@ -2,7 +2,16 @@ import { Component, inject, Injector, OnDestroy, OnInit, runInInjectionContext, 
 import { ActivatedRoute, Router } from '@angular/router';
 import { Auth } from '@angular/fire/auth';
 import { Subscription } from 'rxjs';
-import { IonicModule } from '@ionic/angular';
+import {
+  IonHeader,
+  IonToolbar,
+  IonTitle,
+  IonButton,
+  IonIcon,
+  IonContent,
+  IonBadge,
+  IonSpinner,
+} from '@ionic/angular/standalone';
 import { GameService } from '../../services/game.service';
 import { Game } from '../../models/game';
 
@@ -11,7 +20,7 @@ import { Game } from '../../models/game';
   templateUrl: './game-lobby.page.html',
   styleUrls: ['./game-lobby.page.scss'],
   standalone: true,
-  imports: [IonicModule],
+  imports: [IonHeader, IonToolbar, IonTitle, IonButton, IonIcon, IonContent, IonBadge, IonSpinner],
 })
 export class GameLobbyPage implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);

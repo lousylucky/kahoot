@@ -21,59 +21,60 @@ import {
 
 @Component({
   selector: 'app-register',
+  standalone: true,
   template: ` <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
-    <ion-header [translucent]="true">
-      <ion-toolbar>
-        <ion-title>Register</ion-title>
-      </ion-toolbar>
-    </ion-header>
-
-    <ion-content [fullscreen]="true">
-      <ion-header collapse="condense">
+      <ion-header [translucent]="true">
         <ion-toolbar>
-          <ion-title size="large">Register</ion-title>
+          <ion-title>Register</ion-title>
         </ion-toolbar>
       </ion-header>
-      <ion-input
-        formControlName="email"
-        fill="solid"
-        label="Email"
-        labelPlacement="floating"
-        placeholder="user@gmail.com"
-        type="email"
-        [errorText]="invalidEmailText"
-      ></ion-input>
-      <ion-input
-        formControlName="alias"
-        fill="solid"
-        label="Alias"
-        labelPlacement="floating"
-        placeholder="enter your alias"
-        type="text"
-        [errorText]="invalidAliasText"
-      ></ion-input>
-      <ion-input
-        formControlName="password"
-        fill="solid"
-        label="Password"
-        labelPlacement="floating"
-        minlength="6"
-        [errorText]="invalidPasswordText"
-      ></ion-input>
 
-      <ion-input
-        formControlName="passwordConfirm"
-        fill="solid"
-        label="Password Confirmation"
-        labelPlacement="floating"
-        errorText="Does not match password"
-      ></ion-input>
+      <ion-content [fullscreen]="true">
+        <ion-header collapse="condense">
+          <ion-toolbar>
+            <ion-title size="large">Register</ion-title>
+          </ion-toolbar>
+        </ion-header>
+        <ion-input
+          formControlName="email"
+          fill="solid"
+          label="Email"
+          labelPlacement="floating"
+          placeholder="user@gmail.com"
+          type="email"
+          [errorText]="invalidEmailText"
+        ></ion-input>
+        <ion-input
+          formControlName="alias"
+          fill="solid"
+          label="Alias"
+          labelPlacement="floating"
+          placeholder="enter your alias"
+          type="text"
+          [errorText]="invalidAliasText"
+        ></ion-input>
+        <ion-input
+          formControlName="password"
+          fill="solid"
+          label="Password"
+          labelPlacement="floating"
+          minlength="6"
+          [errorText]="invalidPasswordText"
+        ></ion-input>
 
-      <ion-button [disabled]="registerForm.invalid" expand="block" type="submit"
-        >Register</ion-button
-      >
-    </ion-content>
-  </form>`,
+        <ion-input
+          formControlName="passwordConfirm"
+          fill="solid"
+          label="Password Confirmation"
+          labelPlacement="floating"
+          errorText="Does not match password"
+        ></ion-input>
+
+        <ion-button [disabled]="registerForm.invalid" expand="block" type="submit"
+          >Register</ion-button
+        >
+      </ion-content>
+    </form>`,
   imports: [
     IonButton,
     IonHeader,

@@ -1,7 +1,15 @@
 import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { IonicModule } from '@ionic/angular';
+import {
+  IonHeader,
+  IonToolbar,
+  IonTitle,
+  IonContent,
+  IonItem,
+  IonInput,
+  IonButton,
+} from '@ionic/angular/standalone';
 import { Auth } from '@angular/fire/auth';
 import { GameService } from '../../services/game.service';
 
@@ -9,40 +17,40 @@ import { GameService } from '../../services/game.service';
   selector: 'app-join-game',
   template: `
     <ion-header [translucent]="true">
-      <ion-toolbar>
-        <ion-title>Join Game</ion-title>
-      </ion-toolbar>
-    </ion-header>
-
-    <ion-content [fullscreen]="true" class="ion-padding">
-      <ion-header collapse="condense">
         <ion-toolbar>
-          <ion-title size="large">Join Game</ion-title>
+          <ion-title>Join Game</ion-title>
         </ion-toolbar>
       </ion-header>
 
-      <ion-item>
-        <ion-input
-          label="Entry Code"
-          labelPlacement="floating"
-          [(ngModel)]="entryCode"
-          placeholder="Enter 6-digit code"
-          type="text"
-          maxlength="6"
-        ></ion-input>
-      </ion-item>
+      <ion-content [fullscreen]="true" class="ion-padding">
+        <ion-header collapse="condense">
+          <ion-toolbar>
+            <ion-title size="large">Join Game</ion-title>
+          </ion-toolbar>
+        </ion-header>
 
-      <ion-button expand="block" class="ion-margin-top" (click)="joinGame()" [disabled]="!entryCode.trim()">
-        Join
-      </ion-button>
+        <ion-item>
+          <ion-input
+            label="Entry Code"
+            labelPlacement="floating"
+            [(ngModel)]="entryCode"
+            placeholder="Enter 6-digit code"
+            type="text"
+            maxlength="6"
+          ></ion-input>
+        </ion-item>
 
-      @if (error) {
-        <p class="ion-text-center" style="color: var(--ion-color-danger); margin-top: 16px;">{{ error }}</p>
-      }
-    </ion-content>
+        <ion-button expand="block" class="ion-margin-top" (click)="joinGame()" [disabled]="!entryCode.trim()">
+          Join
+        </ion-button>
+
+        @if (error) {
+          <p class="ion-text-center" style="color: var(--ion-color-danger); margin-top: 16px;">{{ error }}</p>
+        }
+      </ion-content>
   `,
   standalone: true,
-  imports: [IonicModule, FormsModule],
+  imports: [IonHeader, IonToolbar, IonTitle, IonContent, IonItem, IonInput, IonButton, FormsModule],
 })
 export class JoinGamePage {
   private gameService = inject(GameService);

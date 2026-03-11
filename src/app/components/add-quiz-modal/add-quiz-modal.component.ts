@@ -34,7 +34,27 @@
 // }
 
 import { Component, inject, signal, computed } from '@angular/core';
-import { IonicModule, ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
+import {
+  IonHeader,
+  IonToolbar,
+  IonTitle,
+  IonButtons,
+  IonButton,
+  IonContent,
+  IonItem,
+  IonLabel,
+  IonInput,
+  IonTextarea,
+  IonNote,
+  IonCard,
+  IonCardHeader,
+  IonCardTitle,
+  IonCardContent,
+  IonRadioGroup,
+  IonRadio,
+  IonList,
+} from '@ionic/angular/standalone';
 import { FormsModule } from '@angular/forms';
 import { form, required, FormField } from '@angular/forms/signals';
 import type { Question } from '../../models/question';
@@ -52,7 +72,12 @@ function emptyQuestion(): QuestionDraft {
 @Component({
   selector: 'app-add-quiz-modal',
   standalone: true,
-  imports: [IonicModule, FormsModule, FormField],
+  imports: [
+    IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent,
+    IonItem, IonLabel, IonInput, IonTextarea, IonNote, IonCard,
+    IonCardHeader, IonCardTitle, IonCardContent, IonRadioGroup, IonRadio, IonList,
+    FormsModule, FormField,
+  ],
   templateUrl: './add-quiz-modal.component.html',
   styleUrls: ['./add-quiz-modal.component.scss'],
 })

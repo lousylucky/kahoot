@@ -14,31 +14,32 @@ import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
   selector: 'app-password-retrieve',
+  standalone: true,
   template: ` <form [formGroup]="passwordRetrieveForm" (ngSubmit)="onSubmit()">
-    <ion-header [translucent]="true">
-      <ion-toolbar>
-        <ion-title>Retrieve Password</ion-title>
-      </ion-toolbar>
-    </ion-header>
-
-    <ion-content [fullscreen]="true">
-      <ion-header collapse="condense">
+      <ion-header [translucent]="true">
         <ion-toolbar>
-          <ion-title size="large">Retrieve Password</ion-title>
+          <ion-title>Retrieve Password</ion-title>
         </ion-toolbar>
       </ion-header>
-      <ion-input
-        formControlName="email"
-        fill="solid"
-        label="Email"
-        labelPlacement="floating"
-        placeholder="user@gmail.com"
-        type="email"
-        [errorText]="invalidEmailText"
-      ></ion-input>
-      <ion-button expand="block" type="submit">Send email</ion-button>
-    </ion-content>
-  </form>`,
+
+      <ion-content [fullscreen]="true">
+        <ion-header collapse="condense">
+          <ion-toolbar>
+            <ion-title size="large">Retrieve Password</ion-title>
+          </ion-toolbar>
+        </ion-header>
+        <ion-input
+          formControlName="email"
+          fill="solid"
+          label="Email"
+          labelPlacement="floating"
+          placeholder="user@gmail.com"
+          type="email"
+          [errorText]="invalidEmailText"
+        ></ion-input>
+        <ion-button expand="block" type="submit">Send email</ion-button>
+      </ion-content>
+    </form>`,
   imports: [
     IonButton,
     IonHeader,

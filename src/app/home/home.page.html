@@ -1,52 +1,51 @@
 <ion-header [translucent]="true">
-  <ion-toolbar color="primary">
-    <ion-title>
-      <div style="text-align: center;">
-        <div style="font-size: 0.85em; font-weight: normal; opacity: 0.85;">Hello {{ alias() || 'Guest' }}</div>
-        <div>My Kahoot</div>
-      </div>
-    </ion-title>
-    <ion-button slot="end" fill="clear" color="light" (click)="onLogout()">
-      <ion-icon slot="icon-only" name="log-out-outline"></ion-icon>
-    </ion-button>
-  </ion-toolbar>
-</ion-header>
-
-<ion-content>
-  <ion-grid>
-    <ion-row>
-      @for (quiz of quizzes(); track quiz.id) {
-      <ion-col size="12" size-md="6">
-        <ion-card>
-          <ion-card-header>
-            <ion-card-title>{{ quiz.title }}
-              <ion-button class="ion-float-right" (click)="playGame($event, quiz.id)">
-                <ion-icon slot="icon-only" name="play-outline"></ion-icon>
-              </ion-button>
-            </ion-card-title>
-            <!-- <ion-card-subtitle>ID: {{ quiz.id }}</ion-card-subtitle> -->
-          </ion-card-header>
-
-          <ion-card-content>
-            <p><strong>Description:</strong> {{ quiz.description }}</p>
-            <p><strong>Number of questions:</strong> {{ quiz.questionsCount }}</p>
-          </ion-card-content>
-        </ion-card>
-      </ion-col>
-      } @empty {
-      <ion-col size="12">
-        <div class="ion-text-center ion-padding">
-          <ion-label color="medium">Could not find any quiz</ion-label>
+    <ion-toolbar color="primary">
+      <ion-title>
+        <div style="text-align: center;">
+          <div style="font-size: 0.85em; font-weight: normal; opacity: 0.85;">Hello {{ alias() || 'Guest' }}</div>
+          <div>My Kahoot</div>
         </div>
-      </ion-col>
-      }
-    </ion-row>
-  </ion-grid>
+      </ion-title>
+      <ion-button slot="end" fill="clear" color="light" (click)="onLogout()">
+        <ion-icon slot="icon-only" name="log-out-outline"></ion-icon>
+      </ion-button>
+    </ion-toolbar>
+  </ion-header>
 
-  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
-    <ion-fab-button (click)="openAddModal()">
-      <ion-icon name="add"></ion-icon>
-    </ion-fab-button>
-  </ion-fab>
+  <ion-content>
+    <ion-grid>
+      <ion-row>
+        @for (quiz of quizzes(); track quiz.id) {
+        <ion-col size="12" size-md="6">
+          <ion-card>
+            <ion-card-header>
+              <ion-card-title>{{ quiz.title }}
+                <ion-button class="ion-float-right" (click)="playGame($event, quiz.id)">
+                  <ion-icon slot="icon-only" name="play-outline"></ion-icon>
+                </ion-button>
+              </ion-card-title>
+              <!-- <ion-card-subtitle>ID: {{ quiz.id }}</ion-card-subtitle> -->
+            </ion-card-header>
 
+            <ion-card-content>
+              <p><strong>Description:</strong> {{ quiz.description }}</p>
+              <p><strong>Number of questions:</strong> {{ quiz.questionsCount }}</p>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+        } @empty {
+        <ion-col size="12">
+          <div class="ion-text-center ion-padding">
+            <ion-label color="medium">Could not find any quiz</ion-label>
+          </div>
+        </ion-col>
+        }
+      </ion-row>
+    </ion-grid>
+
+    <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+      <ion-fab-button (click)="openAddModal()">
+        <ion-icon name="add"></ion-icon>
+      </ion-fab-button>
+    </ion-fab>
 </ion-content>
