@@ -16,7 +16,6 @@ import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { FirebaseAuthentication } from '@capacitor-firebase/authentication';
 import { UserService } from './user.service';
-import { ToastController } from '@ionic/angular/standalone';
 import { Capacitor } from '@capacitor/core';
 
 const RECENT_LOGIN_STORAGE_KEY = 'kahoot_recent_login_at';
@@ -28,7 +27,6 @@ export class AuthService {
   private auth = inject(Auth);
   private router = inject(Router);
   private userService = inject(UserService);
-  private toastController = inject(ToastController);
 
   getConnectedUser(): Observable<User | null> {
     return user(this.auth);
@@ -49,8 +47,7 @@ export class AuthService {
     return this.logout();
   }
 
-  async login(email: string, password: string): Promise<void> {
-    let toast: HTMLIonToastElement | undefined;
+  async login(email: string, password: string): Promise<string | null> {
     try {
       await signInWithEmailAndPassword(
         this.auth,
@@ -61,27 +58,21 @@ export class AuthService {
       this.markRecentLogin();
       await this.waitForCurrentUser();
 
-      const navigated = await this.router.navigateByUrl('/quizzes', {
-        replaceUrl: true,
-      });
-
-      if (!navigated) {
-        throw new Error('Navigation to /quizzes was rejected.');
-      }
-
-      toast = await this.toastController.create({
-        message: `Login successful`,
-        duration: 1500,
-      });
-    } catch (error) {
+      await this.router.navigateByUrl('/quizzes', { replaceUrl: true });
+      return null;
+    } catch (error: any) {
       this.clearRecentLogin();
-      console.error(error);
-      toast = await this.toastController.create({
-        message: `Something wrong happened during login`,
-        duration: 1500,
-      });
-    } finally {
-      await toast?.present();
+      const code: string = error?.code ?? '';
+      if (code === 'auth/invalid-credential' || code === 'auth/wrong-password' || code === 'auth/user-not-found') {
+        return 'Invalid email or password.';
+      }
+      if (code === 'auth/too-many-requests') {
+        return 'Too many attempts. Please try again later.';
+      }
+      if (code === 'auth/user-disabled') {
+        return 'This account has been disabled.';
+      }
+      return 'Login failed. Please try again.';
     }
   }
 

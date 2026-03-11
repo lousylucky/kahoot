@@ -26,6 +26,7 @@ export class LoginPage {
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
   showPassword = false;
+  loginError = '';
 
   loginForm = this.fb.group({
     email: ['', [Validators.email, Validators.required]],
@@ -34,9 +35,13 @@ export class LoginPage {
 
   togglePassword() { this.showPassword = !this.showPassword; }
 
-  onSubmit() {
+  async onSubmit() {
+    this.loginError = '';
     const { email, password } = this.loginForm.value;
-    this.authService.login(email!, password!);
+    const error = await this.authService.login(email!, password!);
+    if (error) {
+      this.loginError = error;
+    }
   }
 
   loginWithGoogle() { this.authService.signInWithGoogle(); }

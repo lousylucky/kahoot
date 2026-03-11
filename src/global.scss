@@ -35,3 +35,20 @@
 /* @import "@ionic/angular/css/palettes/dark.always.css"; */
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
 @import '@ionic/angular/css/palettes/dark.system.css';
+
+/* ── Global app toolbar ─────────────────────────────── */
+ion-toolbar.app-header {
+  --background: linear-gradient(135deg, #1e40af 0%, #2563eb 50%, #60a5fa 100%);
+  --color: #ffffff;
+  --border-width: 0;
+
+  ion-title {
+    font-family: 'Sora', sans-serif;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+  }
+
+  ion-button {
+    --color: rgba(255, 255, 255, 0.9);
+  }
+}
