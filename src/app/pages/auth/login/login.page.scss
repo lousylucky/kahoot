@@ -135,6 +135,31 @@ ion-content.login-content {
   }
 }
 
+/* ── Error banner ────────────────────────────────────── */
+.error-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  margin-bottom: 12px;
+  background: rgba(var(--ion-color-danger-rgb), 0.08);
+  border-radius: 10px;
+  border-left: 3px solid var(--ion-color-danger);
+
+  .error-icon {
+    font-size: 1.1rem;
+    flex-shrink: 0;
+    color: var(--ion-color-danger);
+  }
+
+  .error-text {
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--ion-color-danger-shade);
+  }
+}
+
 /* ── Forgot link ─────────────────────────────────────── */
 .forgot-row {
   text-align: right;

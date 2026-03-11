@@ -53,6 +53,14 @@
         </ion-item>
       </div>
 
+      <!-- Error -->
+      @if (loginError) {
+        <div class="error-banner">
+          <span class="error-icon">⚠</span>
+          <span class="error-text">{{ loginError }}</span>
+        </div>
+      }
+
       <!-- Forgot -->
       <div class="forgot-row">
         <a routerLink="/password-retrieve" class="link-subtle">Forgot your password?</a>
