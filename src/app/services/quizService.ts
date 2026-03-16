@@ -1,4 +1,5 @@
 import { inject, Injectable, Injector, runInInjectionContext } from '@angular/core';
+import { Auth } from '@angular/fire/auth';
 import { Question } from '../models/question';
 import { Choice } from '../models/choice';
 import {
@@ -21,6 +22,9 @@ import {
   writeBatch,
   deleteDoc,
   getDocs,
+  query,
+  where,
+  orderBy,
 } from '@angular/fire/firestore';
 
 @Injectable({
@@ -29,13 +33,15 @@ import {
 export class QuizService {
   private firestore: Firestore = inject(Firestore);
   private injector: Injector = inject(Injector);
+  private auth: Auth = inject(Auth);
 
-  // ne pas oublier de faire un get avec un where car il faudra mettre une sercuriter sur règles de firebase
   getAll(): Observable<Quiz[]> {
+    const uid = this.auth.currentUser?.uid;
     const quizzesCollection = collection(this.firestore, 'quizzes');
+    const userQuizzesQuery = query(quizzesCollection, where('admin', '==', uid ?? ''), orderBy('createdAt', 'desc'));
 
     const quizzes$ = runInInjectionContext(this.injector, () =>
-      collectionData(quizzesCollection, { idField: 'id' }) as Observable<Quiz[]>
+      collectionData(userQuizzesQuery, { idField: 'id' }) as Observable<Quiz[]>
     );
 
     return quizzes$.pipe(
