@@ -118,6 +118,9 @@
       <div class="leaderboard-chart">
         @for (p of playerScores; track p.uid) {
         <div class="player-col">
+          <span class="player-rank-badge" [class.medal-0]="$index === 0" [class.medal-1]="$index === 1" [class.medal-2]="$index === 2">
+            {{ $index === 0 ? '🥇' : $index === 1 ? '🥈' : $index === 2 ? '🥉' : '#' + ($index + 1) }}
+          </span>
           <span class="player-bar-score">{{ p.score }}</span>
           <div class="player-bar-wrap">
             <div class="player-bar" [style.height.%]="(p.score / maxPlayerScore) * 100"

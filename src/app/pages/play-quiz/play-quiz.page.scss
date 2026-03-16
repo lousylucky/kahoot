@@ -352,6 +352,37 @@ ion-content.quiz-content {
   justify-content: flex-end;
 }
 
+.player-rank-badge {
+  min-width: 40px;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 6px;
+  background: #eef2f7;
+  color: #334155;
+  font-family: var(--font-heading);
+  font-size: 0.85rem;
+  font-weight: 800;
+  line-height: 1;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+}
+
+.medal-0,
+.medal-1,
+.medal-2 {
+  font-size: 1.2rem;
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
+}
+
+.medal-0 {
+  transform: translateY(-2px) scale(1.08);
+}
+
 .player-bar-score {
   font-family: var(--font-heading);
   font-size: 0.85rem;
