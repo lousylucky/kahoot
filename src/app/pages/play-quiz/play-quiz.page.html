@@ -105,16 +105,37 @@
   <div class="quiz-wrapper">
     <div class="results-card">
       <h2 class="results-title">Results</h2>
+
+      @if (!isMultiplayer) {
+      <!-- Solo score -->
       <div class="score-circle">
         <span class="score-value">{{ score }}</span>
         <span class="score-total">/ {{ quiz.questions.length }}</span>
       </div>
       <p class="score-percentage">{{ (score / quiz.questions.length * 100).toFixed(0) }}%</p>
+      } @else {
+      <!-- Multiplayer bar chart -->
+      <div class="leaderboard-chart">
+        @for (p of playerScores; track p.uid) {
+        <div class="player-col">
+          <span class="player-bar-score">{{ p.score }}</span>
+          <div class="player-bar-wrap">
+            <div class="player-bar" [style.height.%]="(p.score / maxPlayerScore) * 100"
+                 [class.current-user]="p.uid === game?.adminId || p.uid === (auth.currentUser?.uid ?? '')">
+            </div>
+          </div>
+          <span class="player-alias">{{ p.alias }}</span>
+        </div>
+        }
+      </div>
+      }
 
       <div class="action-buttons">
+        @if (!isMultiplayer) {
         <ion-button expand="block" class="restart-btn" (click)="restartQuiz()">
           Play Again
         </ion-button>
+        }
         <ion-button expand="block" fill="outline" class="home-btn" (click)="goHome()">
           Back to Home
         </ion-button>

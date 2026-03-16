@@ -331,6 +331,64 @@ ion-content.quiz-content {
   }
 }
 
+/* ── Leaderboard bar chart ───────────────────────────── */
+.leaderboard-chart {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 12px;
+  height: 180px;
+  padding: 0 8px 0;
+  margin-bottom: 24px;
+}
+
+.player-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  max-width: 64px;
+  height: 100%;
+  justify-content: flex-end;
+}
+
+.player-bar-score {
+  font-family: var(--font-heading);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin-bottom: 4px;
+}
+
+.player-bar-wrap {
+  width: 100%;
+  height: 130px;
+  display: flex;
+  align-items: flex-end;
+}
+
+.player-bar {
+  width: 100%;
+  min-height: 8px;
+  border-radius: 8px 8px 0 0;
+  background: var(--ion-color-primary);
+  transition: height 0.5s ease;
+
+  &.current-user {
+    background: var(--green-choice);
+  }
+}
+
+.player-alias {
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  color: grey;
+  margin-top: 6px;
+  text-align: center;
+  word-break: break-word;
+  max-width: 100%;
+}
+
 /* ── Responsive ─────────────────────────────────────── */
 @media (max-width: 900px) {
   .answers-grid,
