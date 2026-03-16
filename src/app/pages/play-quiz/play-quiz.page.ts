@@ -152,6 +152,28 @@ export class PlayQuizPage implements OnInit, OnDestroy, ViewWillEnter {
     return this.choiceSymbols[index] ?? '●';
   }
 
+  getVoteCount(questionId: string, choiceIndex: number): number {
+    if (!this.isMultiplayer) {
+      return this.selectedAnswers[questionId] === choiceIndex ? 1 : 0;
+    }
+    const gq = this.gameQuestions.find(q => q.id === questionId);
+    if (!gq) return 0;
+    return Object.values(gq.playerAnswers).filter(v => v === choiceIndex).length;
+  }
+
+  getTotalVotes(questionId: string): number {
+    if (!this.isMultiplayer) return 1;
+    const gq = this.gameQuestions.find(q => q.id === questionId);
+    if (!gq) return 0;
+    return Object.values(gq.playerAnswers).length;
+  }
+
+  getVotePercent(questionId: string, choiceIndex: number): number {
+    const total = this.getTotalVotes(questionId);
+    if (total === 0) return 0;
+    return Math.round((this.getVoteCount(questionId, choiceIndex) / total) * 100);
+  }
+
 
   selectAnswer(choiceIndex: number) {
     if (!this.currentQuestion) return;
