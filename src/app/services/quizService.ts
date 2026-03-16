@@ -98,6 +98,8 @@ export class QuizService {
     batch.set(quizRef, {
       title: quiz.title,
       description: quiz.description,
+      admin: quiz.admin,
+      createdAt: quiz.createdAt,
     });
 
     for (const question of quiz.questions) {

@@ -22,6 +22,7 @@ import { arrowBackOutline } from 'ionicons/icons';
 import type { Question } from '../../models/question';
 import type { Quiz } from '../../models/quiz';
 import { QuizService } from '../../services/quizService';
+import { AuthService } from '../../services/auth.service';
 
 interface QuestionDraft {
   text: string;
@@ -47,6 +48,7 @@ function emptyQuestion(): QuestionDraft {
 export class AddQuizModalComponent {
   private router = inject(Router);
   private quizService = inject(QuizService);
+  private authService = inject(AuthService);
 
   readonly MAX_CHOICES = 5;
 
@@ -192,6 +194,8 @@ export class AddQuizModalComponent {
       id: quizId,
       title: data.title.trim(),
       description: data.description.trim(),
+      admin: this.authService.currentUserId() ?? '',
+      createdAt: Date.now(),
       questions,
     };
 

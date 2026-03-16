@@ -117,6 +117,9 @@ export class PlayQuizPage implements OnInit, OnDestroy, ViewWillEnter {
             title: 'Game',
             description: '',
             questions: questions,
+            admin: this.game?.adminId ?? '',
+            createdAt: this.game?.created ? new Date(this.game.created).getTime() : Date.now(),
+
           };
           this.cdr.detectChanges();
         })

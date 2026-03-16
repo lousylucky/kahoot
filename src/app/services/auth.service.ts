@@ -32,6 +32,10 @@ export class AuthService {
     return user(this.auth);
   }
 
+  currentUserId(): string | null {
+    return this.auth.currentUser?.uid ?? null;
+  }
+
   async register(
     email: string,
     password: string,
