@@ -11,6 +11,7 @@ export interface Game {
   adminId: string;
   players: string[];
   entryCode: string;
+  showingResult?: boolean;
 }
 
 export interface GameQuestion {

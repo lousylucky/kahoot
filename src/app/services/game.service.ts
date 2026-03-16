@@ -100,7 +100,12 @@ export class GameService {
 
   async nextQuestion(gameId: string, newIndex: number): Promise<void> {
     const gameRef = doc(this.firestore, `games/${gameId}`);
-    await updateDoc(gameRef, { currentQuestionIndex: newIndex });
+    await updateDoc(gameRef, { currentQuestionIndex: newIndex, showingResult: false });
+  }
+
+  async setShowingResult(gameId: string, showing: boolean): Promise<void> {
+    const gameRef = doc(this.firestore, `games/${gameId}`);
+    await updateDoc(gameRef, { showingResult: showing });
   }
 
   async finishGame(gameId: string): Promise<void> {

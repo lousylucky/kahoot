@@ -102,8 +102,7 @@ export class PlayQuizPage implements OnInit, OnDestroy, ViewWillEnter {
         this.gameService.getGameById(id).subscribe((game) => {
           this.game = game;
           this.currentQuestionIndex = game.currentQuestionIndex;
-          this.isAdmin = this.auth.currentUser?.uid === game.adminId;
-          if (game.gameStatus === 'finished') {
+          this.isAdmin = this.auth.currentUser?.uid === game.adminId;          this.showingQuestionResult = game.showingResult ?? false;          if (game.gameStatus === 'finished') {
             this.quizFinished = true;
           }
           this.cdr.detectChanges();
@@ -169,6 +168,19 @@ export class PlayQuizPage implements OnInit, OnDestroy, ViewWillEnter {
   nextQuestion() {
     if (!this.quiz) return;
 
+    if (this.isMultiplayer && this.game && this.isAdmin) {
+      if (!this.showingQuestionResult) {
+        this.gameService.setShowingResult(this.game.id, true);
+      } else {
+        const newIndex = this.game.currentQuestionIndex + 1;
+        if (newIndex < this.quiz.questions.length) {
+          this.gameService.nextQuestion(this.game.id, newIndex);
+        }
+      }
+      return;
+    }
+
+    // Solo mode
     if (!this.showingQuestionResult) {
       this.showingQuestionResult = true;
       this.cdr.detectChanges();
@@ -176,18 +188,9 @@ export class PlayQuizPage implements OnInit, OnDestroy, ViewWillEnter {
     }
 
     this.showingQuestionResult = false;
-
-    if (this.isMultiplayer && this.game && this.isAdmin) {
-      const newIndex = this.game.currentQuestionIndex + 1;
-      if (newIndex < this.quiz.questions.length) {
-        this.gameService.nextQuestion(this.game.id, newIndex);
-      }
-    } else if (!this.isMultiplayer) {
-      if (this.currentQuestionIndex < this.quiz.questions.length - 1) {
-        this.currentQuestionIndex++;
-      }
+    if (this.currentQuestionIndex < this.quiz.questions.length - 1) {
+      this.currentQuestionIndex++;
     }
-
     this.cdr.detectChanges();
   }
 
@@ -202,26 +205,27 @@ export class PlayQuizPage implements OnInit, OnDestroy, ViewWillEnter {
 
     if (this.isMultiplayer && this.game && this.isAdmin) {
       if (!this.showingQuestionResult) {
-        this.showingQuestionResult = true;
-        this.cdr.detectChanges();
-        return;
+        this.gameService.setShowingResult(this.game.id, true);
+      } else {
+        this.gameService.finishGame(this.game.id);
       }
-      this.gameService.finishGame(this.game.id);
-    } else if (!this.isMultiplayer) {
-      if (!this.showingQuestionResult) {
-        this.showingQuestionResult = true;
-        this.cdr.detectChanges();
-        return;
-      }
-      this.score = 0;
-      this.quiz.questions.forEach((question) => {
-        if (this.selectedAnswers[question.id] === question.correctChoiceIndex) {
-          this.score++;
-        }
-      });
-      this.quizFinished = true;
-      this.cdr.detectChanges();
+      return;
     }
+
+    // Solo mode
+    if (!this.showingQuestionResult) {
+      this.showingQuestionResult = true;
+      this.cdr.detectChanges();
+      return;
+    }
+    this.score = 0;
+    this.quiz.questions.forEach((question) => {
+      if (this.selectedAnswers[question.id] === question.correctChoiceIndex) {
+        this.score++;
+      }
+    });
+    this.quizFinished = true;
+    this.cdr.detectChanges();
   }
 
   restartQuiz() {
