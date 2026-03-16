@@ -1,6 +1,11 @@
 <ion-header [translucent]="true">
   <ion-toolbar class="app-header">
-    <ion-title>My Kahoot</ion-title>
+    <ion-title>
+      <div class="header-title">
+        <img src="assets/icon/icon.png" class="header-logo" alt="logo" />
+        <span>My Kahoot</span>
+      </div>
+    </ion-title>
     <ion-button slot="end" fill="clear" (click)="onLogout()">
       <ion-icon slot="icon-only" name="log-out-outline"></ion-icon>
     </ion-button>
@@ -12,7 +17,7 @@
 
     <!-- ── Brand ── -->
     <div class="brand">
-      <div class="brand-icon">🎯</div>
+      <img src="assets/icon/icon.png" class="brand-icon" alt="logo" />
       <h1 class="brand-name">Your Quizzes</h1>
       <p class="brand-sub">Hello {{ alias() || 'Guest' }} — pick a quiz to play!</p>
     </div>
@@ -45,3 +50,5 @@
     </ion-fab-button>
   </ion-fab>
 </ion-content>
+
+
