@@ -28,6 +28,11 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
+    path: 'edit-quiz/:id',
+    loadComponent: () => import('./components/add-quiz-modal/add-quiz-modal.component').then((m) => m.AddQuizModalComponent),
+    canActivate: [authGuard],
+  },
+  {
     path: 'game-lobby/:id',
     loadComponent: () => import('./pages/game-lobby/game-lobby.page').then((m) => m.GameLobbyPage),
     canActivate: [authGuard],
@@ -39,14 +44,14 @@ export const routes: Routes = [
   },
   {
     path: 'login',
-    loadComponent: () => import('./pages/auth/login/login.page').then(m => m.LoginPage),
+    loadComponent: () => import('./pages/auth/login/login.page').then((m) => m.LoginPage),
   },
   {
     path: 'register',
-    loadComponent: () => import('./pages/auth/register/register.page').then(m => m.RegisterPage),
+    loadComponent: () => import('./pages/auth/register/register.page').then((m) => m.RegisterPage),
   },
   {
     path: 'password-retrieve',
-    loadComponent: () => import('./pages/auth/password-retrieve/password-retrieve.page').then(m => m.PasswordRetrievePage),
+    loadComponent: () => import('./pages/auth/password-retrieve/password-retrieve.page').then((m) => m.PasswordRetrievePage),
   },
 ];
