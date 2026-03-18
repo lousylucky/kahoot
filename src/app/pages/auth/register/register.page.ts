@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   AbstractControl, FormBuilder, ReactiveFormsModule,
@@ -7,18 +7,18 @@ import {
 import { AuthService } from 'src/app/services/auth.service';
 import { RouterLink } from '@angular/router';
 import { addIcons } from 'ionicons';
-import { eyeOutline, eyeOffOutline, logoGoogle } from 'ionicons/icons';
+import { eyeOutline, eyeOffOutline, logoGoogle, checkmarkCircleOutline } from 'ionicons/icons';
 import {
-  IonButton, IonContent, IonInput, IonItem, IonIcon, IonToolbar, IonHeader, IonTitle, IonBackButton, IonButtons } from '@ionic/angular/standalone';
+  IonButton, IonContent, IonInput, IonItem, IonIcon, IonToolbar, IonHeader, IonTitle, IonBackButton, IonButtons, IonSpinner } from '@ionic/angular/standalone';
 
-addIcons({ eyeOutline, eyeOffOutline, logoGoogle });
+addIcons({ eyeOutline, eyeOffOutline, logoGoogle, checkmarkCircleOutline });
 
 @Component({
   selector: 'app-register',
   templateUrl: 'register.page.html',
   styleUrls: ['register.page.scss'],
   imports: [IonButtons, IonBackButton, IonTitle, IonHeader, IonToolbar,
-    IonButton, IonContent, IonInput, IonItem, IonIcon,
+    IonButton, IonContent, IonInput, IonItem, IonIcon, IonSpinner,
     CommonModule, ReactiveFormsModule, RouterLink,
   ],
 })
@@ -28,7 +28,9 @@ export class RegisterPage {
 
   showPassword = false;
   showConfirm  = false;
-  registerError = '';
+  loading = signal(false);
+  success = signal(false);
+  errorMsg = signal('');
 
   registerForm = this.fb.group({
     email:           ['', [Validators.email, Validators.required]],
@@ -51,16 +53,37 @@ export class RegisterPage {
     return { weak: 'Weak', medium: 'Fair', strong: 'Strong' }[this.strengthClass] ?? 'Weak';
   }
 
-  onSubmit() {
-    const { email, password, alias } = this.registerForm.value;
-    this.authService.register(email!, password!, alias!);
+  async onSubmit() {
+    if (this.registerForm.invalid || this.loading()) return;
+
+    this.loading.set(true);
+    this.errorMsg.set('');
+
+    try {
+      const { email, password, alias } = this.registerForm.value;
+      await this.authService.register(email!, password!, alias!);
+      this.success.set(true);
+    } catch (error: any) {
+      const code: string = error?.code ?? '';
+      if (code === 'auth/email-already-in-use') {
+        this.errorMsg.set('This email is already registered.');
+      } else if (code === 'auth/invalid-email') {
+        this.errorMsg.set('Invalid email address.');
+      } else if (code === 'auth/weak-password') {
+        this.errorMsg.set('Password is too weak.');
+      } else {
+        console.error('Registration error:', code, error);
+        this.errorMsg.set(`Registration failed (${code || 'unknown'}). Please try again.`);
+      }
+    } finally {
+      this.loading.set(false);
+    }
   }
 
   async registerWithGoogle() {
-    this.registerError = '';
     const error = await this.authService.signInWithGoogle();
     if (error) {
-      this.registerError = error;
+      this.errorMsg.set(error);
     }
   }
 }

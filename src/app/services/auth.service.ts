@@ -47,18 +47,28 @@ export class AuthService {
       email,
       password,
     );
-    await this.userService.create({ alias, ...userCred.user });
-    await sendEmailVerification(userCred.user);
-    return this.logout();
+    await this.userService.create(userCred.user.uid, alias);
+    try {
+      await sendEmailVerification(userCred.user);
+    } catch (e) {
+      console.warn('Verification email failed:', e);
+    }
+    await signOut(this.auth);
+    this.clearRecentLogin();
   }
 
   async login(email: string, password: string): Promise<string | null> {
     try {
-      await signInWithEmailAndPassword(
+      const userCred = await signInWithEmailAndPassword(
         this.auth,
         email.trim(),
         password,
       );
+
+      if (!userCred.user.emailVerified) {
+        await signOut(this.auth);
+        return 'Please verify your email before logging in. Check your inbox.';
+      }
 
       this.markRecentLogin();
       await this.waitForCurrentUser();
