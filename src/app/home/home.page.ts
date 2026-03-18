@@ -1,23 +1,24 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
+import { Router } from '@angular/router';
+import { Auth, user } from '@angular/fire/auth';
 import {
-  IonHeader,
-  IonToolbar,
-  IonTitle,
   IonButton,
-  IonIcon,
+  IonButtons,
   IonContent,
   IonFab,
   IonFabButton,
+  IonHeader,
+  IonIcon,
+  IonTitle,
+  IonToolbar,
 } from '@ionic/angular/standalone';
-import { QuizService } from '../services/quizService';
-import { Quiz } from '../models/quiz';
-import { Router } from '@angular/router';
 import { addIcons } from 'ionicons';
-import { add, logOutOutline, chevronForwardOutline } from 'ionicons/icons';
-import { Auth, user } from '@angular/fire/auth';
-import { UserService } from '../services/user.service';
-import { GameService } from '../services/game.service';
+import { add, chevronForwardOutline, createOutline, logOutOutline } from 'ionicons/icons';
 import { filter, switchMap, take } from 'rxjs/operators';
+import { Quiz } from '../models/quiz';
+import { GameService } from '../services/game.service';
+import { QuizService } from '../services/quizService';
+import { UserService } from '../services/user.service';
 
 @Component({
   selector: 'app-home',
@@ -29,6 +30,7 @@ import { filter, switchMap, take } from 'rxjs/operators';
     IonToolbar,
     IonTitle,
     IonButton,
+    IonButtons,
     IonIcon,
     IonContent,
     IonFab,
@@ -46,7 +48,7 @@ export class HomePage implements OnInit {
   private router = inject(Router);
 
   constructor() {
-    addIcons({ add, logOutOutline, chevronForwardOutline });
+    addIcons({ add, chevronForwardOutline, createOutline, logOutOutline });
   }
 
   ngOnInit() {
@@ -55,22 +57,30 @@ export class HomePage implements OnInit {
       error: (error) => console.error('Quiz list load failed', error),
     });
 
-    user(this.auth).pipe(
-      filter((u): u is NonNullable<typeof u> => !!u),
-      take(1),
-      switchMap((u) => this.userService.getById(u.uid)),
-      take(1),
-    ).subscribe({
-      next: (userData) => {
-        if (userData?.alias) {
-          this.alias.set(userData.alias);
-        }
-      },
-    });
+    user(this.auth)
+      .pipe(
+        filter((u): u is NonNullable<typeof u> => !!u),
+        take(1),
+        switchMap((u) => this.userService.getById(u.uid)),
+        take(1)
+      )
+      .subscribe({
+        next: (userData) => {
+          if (userData?.alias) {
+            this.alias.set(userData.alias);
+          }
+        },
+      });
   }
 
   openAddQuiz() {
     this.router.navigateByUrl('/add-quiz');
+  }
+
+  editQuiz(event: MouseEvent, quizId: string) {
+    event.stopPropagation();
+    event.preventDefault();
+    this.router.navigate(['/edit-quiz', quizId]);
   }
 
   playGame(event: MouseEvent, quizId: string) {

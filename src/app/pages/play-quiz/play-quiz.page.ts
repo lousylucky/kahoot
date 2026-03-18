@@ -19,6 +19,7 @@ import { Question } from '../../models/question';
 import { Game, GameQuestion } from '../../models/game';
 import { QuizService } from '../../services/quizService';
 import { GameService } from '../../services/game.service';
+import { UserService } from '../../services/user.service';
 import { addIcons } from 'ionicons';
 import { chevronBack, chevronForward, checkmarkCircle } from 'ionicons/icons';
 
@@ -52,13 +53,15 @@ export class PlayQuizPage implements OnInit, OnDestroy, ViewWillEnter {
   isAdmin = false;
   game?: Game;
   gameQuestions: GameQuestion[] = [];
+  playerScores: { uid: string; alias: string; score: number }[] = [];
 
   private quizSub?: Subscription;
   private gameSub?: Subscription;
   private gameQuestionsSub?: Subscription;
 
-  private auth = inject(Auth);
+  readonly auth = inject(Auth);
   private gameService = inject(GameService);
+  private userService = inject(UserService);
 
   private readonly choiceSymbols = ['▲', '◆', '●', '■'];
 
@@ -90,6 +93,7 @@ export class PlayQuizPage implements OnInit, OnDestroy, ViewWillEnter {
     this.game = undefined;
     this.isMultiplayer = false;
     this.isAdmin = false;
+    this.playerScores = [];
 
     const id = this.route.snapshot.paramMap.get('id');
     const mode = this.route.snapshot.queryParamMap.get('mode');
@@ -103,8 +107,13 @@ export class PlayQuizPage implements OnInit, OnDestroy, ViewWillEnter {
           this.game = game;
           this.currentQuestionIndex = game.currentQuestionIndex;
           this.isAdmin = this.auth.currentUser?.uid === game.adminId;
+          this.showingQuestionResult = game.showingResult ?? false;
           if (game.gameStatus === 'finished') {
             this.quizFinished = true;
+            // call only once questions are loaded
+            if (this.gameQuestions.length > 0) {
+              this.computeMultiplayerScores();
+            }
           }
           this.cdr.detectChanges();
         })
@@ -117,7 +126,13 @@ export class PlayQuizPage implements OnInit, OnDestroy, ViewWillEnter {
             title: 'Game',
             description: '',
             questions: questions,
+            admin: this.game?.adminId ?? '',
+            createdAt: this.game?.created ? new Date(this.game.created).getTime() : Date.now(),
           };
+          // if game already finished when questions arrive, compute scores now
+          if (this.quizFinished) {
+            this.computeMultiplayerScores();
+          }
           this.cdr.detectChanges();
         })
       );
@@ -150,6 +165,28 @@ export class PlayQuizPage implements OnInit, OnDestroy, ViewWillEnter {
     return this.choiceSymbols[index] ?? '●';
   }
 
+  getVoteCount(questionId: string, choiceIndex: number): number {
+    if (!this.isMultiplayer) {
+      return this.selectedAnswers[questionId] === choiceIndex ? 1 : 0;
+    }
+    const gq = this.gameQuestions.find(q => q.id === questionId);
+    if (!gq) return 0;
+    return Object.values(gq.playerAnswers).filter(v => v === choiceIndex).length;
+  }
+
+  getTotalVotes(questionId: string): number {
+    if (!this.isMultiplayer) return 1;
+    const gq = this.gameQuestions.find(q => q.id === questionId);
+    if (!gq) return 0;
+    return Object.values(gq.playerAnswers).length;
+  }
+
+  getVotePercent(questionId: string, choiceIndex: number): number {
+    const total = this.getTotalVotes(questionId);
+    if (total === 0) return 0;
+    return Math.round((this.getVoteCount(questionId, choiceIndex) / total) * 100);
+  }
+
 
   selectAnswer(choiceIndex: number) {
     if (!this.currentQuestion) return;
@@ -166,6 +203,19 @@ export class PlayQuizPage implements OnInit, OnDestroy, ViewWillEnter {
   nextQuestion() {
     if (!this.quiz) return;
 
+    if (this.isMultiplayer && this.game && this.isAdmin) {
+      if (!this.showingQuestionResult) {
+        this.gameService.setShowingResult(this.game.id, true);
+      } else {
+        const newIndex = this.game.currentQuestionIndex + 1;
+        if (newIndex < this.quiz.questions.length) {
+          this.gameService.nextQuestion(this.game.id, newIndex);
+        }
+      }
+      return;
+    }
+
+    // Solo mode
     if (!this.showingQuestionResult) {
       this.showingQuestionResult = true;
       this.cdr.detectChanges();
@@ -173,18 +223,9 @@ export class PlayQuizPage implements OnInit, OnDestroy, ViewWillEnter {
     }
 
     this.showingQuestionResult = false;
-
-    if (this.isMultiplayer && this.game && this.isAdmin) {
-      const newIndex = this.game.currentQuestionIndex + 1;
-      if (newIndex < this.quiz.questions.length) {
-        this.gameService.nextQuestion(this.game.id, newIndex);
-      }
-    } else if (!this.isMultiplayer) {
-      if (this.currentQuestionIndex < this.quiz.questions.length - 1) {
-        this.currentQuestionIndex++;
-      }
+    if (this.currentQuestionIndex < this.quiz.questions.length - 1) {
+      this.currentQuestionIndex++;
     }
-
     this.cdr.detectChanges();
   }
 
@@ -199,26 +240,55 @@ export class PlayQuizPage implements OnInit, OnDestroy, ViewWillEnter {
 
     if (this.isMultiplayer && this.game && this.isAdmin) {
       if (!this.showingQuestionResult) {
-        this.showingQuestionResult = true;
-        this.cdr.detectChanges();
-        return;
+        this.gameService.setShowingResult(this.game.id, true);
+      } else {
+        this.gameService.finishGame(this.game.id);
       }
-      this.gameService.finishGame(this.game.id);
-    } else if (!this.isMultiplayer) {
-      if (!this.showingQuestionResult) {
-        this.showingQuestionResult = true;
-        this.cdr.detectChanges();
-        return;
-      }
-      this.score = 0;
-      this.quiz.questions.forEach((question) => {
-        if (this.selectedAnswers[question.id] === question.correctChoiceIndex) {
-          this.score++;
-        }
-      });
-      this.quizFinished = true;
-      this.cdr.detectChanges();
+      return;
     }
+
+    // Solo mode
+    if (!this.showingQuestionResult) {
+      this.showingQuestionResult = true;
+      this.cdr.detectChanges();
+      return;
+    }
+    this.score = 0;
+    this.quiz.questions.forEach((question) => {
+      if (this.selectedAnswers[question.id] === question.correctChoiceIndex) {
+        this.score++;
+      }
+    });
+    this.quizFinished = true;
+    this.cdr.detectChanges();
+  }
+
+  private async computeMultiplayerScores() {
+    if (!this.game || !this.gameQuestions.length) return;
+    const players = this.game.players;
+    const scores = await Promise.all(
+      players.map(async (uid) => {
+        let alias = uid.slice(0, 6);
+        try {
+          const user = await new Promise<any>((resolve) =>
+            runInInjectionContext(this.injector, () =>
+              this.userService.getById(uid).subscribe({ next: resolve, error: () => resolve(null) })
+            )
+          );
+          if (user?.alias) alias = user.alias;
+        } catch {}
+        const score = this.gameQuestions.reduce((acc, q) => {
+          return acc + (q.playerAnswers[uid] === q.correctChoiceIndex ? 1 : 0);
+        }, 0);
+        return { uid, alias, score };
+      })
+    );
+    this.playerScores = scores.sort((a, b) => b.score - a.score);
+    this.cdr.detectChanges();
+  }
+
+  get maxPlayerScore(): number {
+    return Math.max(...this.playerScores.map(p => p.score), 1);
   }
 
   restartQuiz() {
@@ -227,6 +297,7 @@ export class PlayQuizPage implements OnInit, OnDestroy, ViewWillEnter {
     this.score = 0;
     this.quizFinished = false;
     this.showingQuestionResult = false;
+    this.playerScores = [];
   }
 
   goHome() {

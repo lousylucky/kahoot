@@ -1,4 +1,3 @@
-/* ── Tokens ─────────────────────────────────────────── */
 :host {
   --font-heading: 'Sora', sans-serif;
   --font-body: 'DM Sans', sans-serif;
@@ -6,12 +5,23 @@
   --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.09), 0 1px 4px rgba(0, 0, 0, 0.06);
 }
 
-/* ── Content bg ──────────────────────────────────────── */
+.header-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  .header-logo {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
+    border-radius: 6px;
+  }
+}
+
 ion-content.quizzes-content {
   --background: #f5f6fa;
 }
 
-/* ── Wrapper ─────────────────────────────────────────── */
 .quizzes-wrapper {
   padding: 24px 16px 100px;
   max-width: 520px;
@@ -22,15 +32,17 @@ ion-content.quizzes-content {
   }
 }
 
-/* ── Brand block ─────────────────────────────────────── */
 .brand {
   text-align: center;
   margin-bottom: 28px;
 
   .brand-icon {
-    font-size: 3rem;
-    margin-bottom: 8px;
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    border-radius: 16px;
     display: block;
+    margin: 0 auto 12px;
     animation: float 3s ease-in-out infinite;
   }
 
@@ -51,7 +63,6 @@ ion-content.quizzes-content {
   }
 }
 
-/* ── Quiz card ───────────────────────────────────────── */
 .quiz-card {
   background: #ffffff;
   border-radius: var(--card-radius);
@@ -61,8 +72,8 @@ ion-content.quizzes-content {
   overflow: hidden;
   position: relative;
   transition: transform 0.15s, box-shadow 0.15s;
+  cursor: pointer;
 
-  /* Accent stripe */
   &::before {
     content: '';
     position: absolute;
@@ -76,8 +87,6 @@ ion-content.quizzes-content {
       var(--ion-color-secondary, #5c6bc0)
     );
   }
-
-  cursor: pointer;
 
   &:active {
     transform: scale(0.98);
@@ -132,7 +141,18 @@ ion-content.quizzes-content {
   border-radius: 20px;
 }
 
-/* ── Play chevron ────────────────────────────────────── */
+.quiz-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+
+  ion-button {
+    margin: 0;
+    --color: var(--ion-color-medium);
+  }
+}
+
 .play-chevron {
   font-size: 1.4rem;
   color: var(--ion-color-step-400);
@@ -145,7 +165,6 @@ ion-content.quizzes-content {
   transform: translateX(2px);
 }
 
-/* ── Empty state ─────────────────────────────────────── */
 .empty-state {
   text-align: center;
   padding: 48px 16px;
@@ -175,13 +194,17 @@ ion-content.quizzes-content {
   }
 }
 
-/* ── FAB ─────────────────────────────────────────────── */
 ion-fab-button {
   --box-shadow: 0 4px 14px rgba(var(--ion-color-primary-rgb), 0.4);
 }
 
-/* ── Float animation ─────────────────────────────────── */
 @keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50%      { transform: translateY(-7px); }
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-7px);
+  }
 }

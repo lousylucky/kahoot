@@ -1,6 +1,11 @@
 <ion-header [translucent]="true">
   <ion-toolbar class="app-header">
-    <ion-title>My Kahoot</ion-title>
+    <ion-title>
+      <div class="header-title">
+        <img src="assets/icon/icon.png" class="header-logo" alt="logo" />
+        <span>My Kahoot</span>
+      </div>
+    </ion-title>
     <ion-button slot="end" fill="clear" (click)="onLogout()">
       <ion-icon slot="icon-only" name="log-out-outline"></ion-icon>
     </ion-button>
@@ -9,34 +14,37 @@
 
 <ion-content class="quizzes-content">
   <div class="quizzes-wrapper">
-
-    <!-- ── Brand ── -->
     <div class="brand">
-      <div class="brand-icon">🎯</div>
+      <img src="assets/icon/icon.png" class="brand-icon" alt="logo" />
       <h1 class="brand-name">Your Quizzes</h1>
-      <p class="brand-sub">Hello {{ alias() || 'Guest' }} — pick a quiz to play!</p>
+      <p class="brand-sub">Hello {{ alias() || 'Guest' }} - pick a quiz to play!</p>
     </div>
 
-    <!-- ── Quiz list ── -->
     @for (quiz of quizzes(); track quiz.id) {
-    <div class="quiz-card" (click)="playGame($event, quiz.id)">
-      <div class="quiz-card-body">
-        <div class="quiz-info">
-          <h2 class="quiz-title">{{ quiz.title }}</h2>
-          <p class="quiz-description">{{ quiz.description }}</p>
-          <span class="quiz-meta">{{ quiz.questionsCount }} question{{ quiz.questionsCount !== 1 ? 's' : '' }}</span>
+      <div class="quiz-card" (click)="playGame($event, quiz.id)">
+        <div class="quiz-card-body">
+          <div class="quiz-info">
+            <h2 class="quiz-title">{{ quiz.title }}</h2>
+            <p class="quiz-description">{{ quiz.description }}</p>
+            <span class="quiz-meta">
+              {{ quiz.questionsCount }} question{{ quiz.questionsCount !== 1 ? 's' : '' }}
+            </span>
+          </div>
+          <div class="quiz-actions">
+            <ion-button fill="clear" (click)="editQuiz($event, quiz.id)">
+              <ion-icon slot="icon-only" name="create-outline"></ion-icon>
+            </ion-button>
+            <ion-icon class="play-chevron" name="chevron-forward-outline"></ion-icon>
+          </div>
         </div>
-        <ion-icon class="play-chevron" name="chevron-forward-outline"></ion-icon>
       </div>
-    </div>
     } @empty {
-    <div class="empty-state">
-      <div class="empty-icon">📝</div>
-      <p class="empty-text">No quizzes yet</p>
-      <p class="empty-sub">Tap the + button to create your first quiz</p>
-    </div>
+      <div class="empty-state">
+        <div class="empty-icon">📝</div>
+        <p class="empty-text">No quizzes yet</p>
+        <p class="empty-sub">Tap the + button to create your first quiz</p>
+      </div>
     }
-
   </div>
 
   <ion-fab vertical="bottom" horizontal="end" slot="fixed">

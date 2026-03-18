@@ -7,11 +7,11 @@ import {
 import { AuthService } from 'src/app/services/auth.service';
 import { RouterLink } from '@angular/router';
 import { addIcons } from 'ionicons';
-import { eyeOutline, eyeOffOutline } from 'ionicons/icons';
+import { eyeOutline, eyeOffOutline, logoGoogle } from 'ionicons/icons';
 import {
   IonButton, IonContent, IonInput, IonItem, IonIcon, IonToolbar, IonHeader, IonTitle, IonBackButton, IonButtons } from '@ionic/angular/standalone';
 
-addIcons({ eyeOutline, eyeOffOutline });
+addIcons({ eyeOutline, eyeOffOutline, logoGoogle });
 
 @Component({
   selector: 'app-register',
@@ -53,6 +53,10 @@ export class RegisterPage {
   onSubmit() {
     const { email, password, alias } = this.registerForm.value;
     this.authService.register(email!, password!, alias!);
+  }
+
+  registerWithGoogle() {
+    this.authService.signInWithGoogle();
   }
 }
 

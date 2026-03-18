@@ -1,27 +1,22 @@
 import { inject, Injectable, Injector, runInInjectionContext } from '@angular/core';
-import { Question } from '../models/question';
-import { Choice } from '../models/choice';
-import {
-  BehaviorSubject,
-  combineLatest,
-  map,
-  mergeMap,
-  Observable,
-  switchMap,
-} from 'rxjs';
-import { Quiz } from '../models/quiz';
+import { Auth } from '@angular/fire/auth';
 import {
   Firestore,
   collection,
+  collectionCount,
   collectionData,
+  deleteDoc,
   doc,
   docData,
-  collectionCount,
-  setDoc,
-  writeBatch,
-  deleteDoc,
   getDocs,
+  orderBy,
+  query,
+  where,
+  writeBatch,
 } from '@angular/fire/firestore';
+import { combineLatest, map, mergeMap, Observable, switchMap } from 'rxjs';
+import { Question } from '../models/question';
+import { Quiz } from '../models/quiz';
 
 @Injectable({
   providedIn: 'root',
@@ -29,13 +24,19 @@ import {
 export class QuizService {
   private firestore: Firestore = inject(Firestore);
   private injector: Injector = inject(Injector);
+  private auth: Auth = inject(Auth);
 
-  // ne pas oublier de faire un get avec un where car il faudra mettre une sercuriter sur règles de firebase
   getAll(): Observable<Quiz[]> {
+    const uid = this.auth.currentUser?.uid;
     const quizzesCollection = collection(this.firestore, 'quizzes');
+    const userQuizzesQuery = query(
+      quizzesCollection,
+      where('admin', '==', uid ?? ''),
+      orderBy('createdAt', 'desc')
+    );
 
     const quizzes$ = runInInjectionContext(this.injector, () =>
-      collectionData(quizzesCollection, { idField: 'id' }) as Observable<Quiz[]>
+      collectionData(userQuizzesQuery, { idField: 'id' }) as Observable<Quiz[]>
     );
 
     return quizzes$.pipe(
@@ -45,7 +46,7 @@ export class QuizService {
               quizzes.map((quiz) => {
                 const questionsCollection = collection(
                   this.firestore,
-                  `quizzes/${quiz.id}/questions`,
+                  `quizzes/${quiz.id}/questions`
                 );
 
                 return runInInjectionContext(this.injector, () =>
@@ -53,13 +54,13 @@ export class QuizService {
                     map((count) => ({
                       ...quiz,
                       questionsCount: count,
-                    })),
+                    }))
                   )
                 );
-              }),
+              })
             )
-          : [[] as Quiz[]],
-      ),
+          : [[] as Quiz[]]
+      )
     );
   }
 
@@ -70,41 +71,44 @@ export class QuizService {
       docData(quizDoc, { idField: 'id' }) as Observable<Quiz>
     );
 
-    return quizData.pipe(
-      switchMap((quiz) => this.assembleQuiz(quiz)),
-    ) as Observable<Quiz>;
+    return quizData.pipe(switchMap((quiz) => this.assembleQuiz(quiz))) as Observable<Quiz>;
   }
 
   private assembleQuiz(quiz: Quiz): Observable<Quiz> {
     return runInInjectionContext(this.injector, () =>
-      (collectionData(
-        collection(doc(this.firestore, `quizzes/${quiz.id}`), 'questions'),
-        { idField: 'id' },
-      ) as Observable<Question[]>).pipe(
+      (collectionData(collection(doc(this.firestore, `quizzes/${quiz.id}`), 'questions'), {
+        idField: 'id',
+      }) as Observable<Question[]>).pipe(
         map((questions) => ({
           ...quiz,
           questions,
-        })),
+        }))
       )
     );
   }
 
   async setQuiz(quiz: Quiz): Promise<void> {
     const batch = writeBatch(this.firestore);
-
-    // Quiz (auto ID or provided ID — your choice)
     const quizRef = doc(this.firestore, 'quizzes', quiz.id);
+    const questionsCollection = collection(this.firestore, `quizzes/${quiz.id}/questions`);
+    const nextQuestionIds = new Set(quiz.questions.map((question) => question.id));
+    const existingQuestionsSnapshot = await getDocs(questionsCollection);
+
+    existingQuestionsSnapshot.forEach((questionDoc) => {
+      if (!nextQuestionIds.has(questionDoc.id)) {
+        batch.delete(questionDoc.ref);
+      }
+    });
 
     batch.set(quizRef, {
       title: quiz.title,
       description: quiz.description,
+      admin: quiz.admin,
+      createdAt: quiz.createdAt,
     });
 
     for (const question of quiz.questions) {
-      const questionRef = doc(
-        this.firestore,
-        `quizzes/${quiz.id}/questions/${question.id}`,
-      );
+      const questionRef = doc(this.firestore, `quizzes/${quiz.id}/questions/${question.id}`);
 
       batch.set(questionRef, {
         text: question.text,
@@ -133,6 +137,7 @@ export class QuizService {
     const quizId = this.generateQuizId();
     const questionId = this.generateQuestionId(quizId);
     const correctChoiceIndex = 0;
+
     return {
       id: quizId,
       title: 'Guess the Capital City',
