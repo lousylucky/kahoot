@@ -28,6 +28,7 @@ export class RegisterPage {
 
   showPassword = false;
   showConfirm  = false;
+  registerError = '';
 
   registerForm = this.fb.group({
     email:           ['', [Validators.email, Validators.required]],
@@ -55,8 +56,12 @@ export class RegisterPage {
     this.authService.register(email!, password!, alias!);
   }
 
-  registerWithGoogle() {
-    this.authService.signInWithGoogle();
+  async registerWithGoogle() {
+    this.registerError = '';
+    const error = await this.authService.signInWithGoogle();
+    if (error) {
+      this.registerError = error;
+    }
   }
 }
 

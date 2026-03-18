@@ -5,7 +5,11 @@ import { provideFirebaseApp, initializeApp } from '@angular/fire/app';
 import { provideFirestore, getFirestore } from '@angular/fire/firestore';
 import { provideAuth, initializeAuth } from '@angular/fire/auth';
 import { getApp } from 'firebase/app';
-import { browserLocalPersistence, indexedDBLocalPersistence } from 'firebase/auth';
+import {
+  browserLocalPersistence,
+  browserPopupRedirectResolver,
+  indexedDBLocalPersistence,
+} from 'firebase/auth';
 
 import { routes } from './app/app.routes';
 import { AppComponent } from './app/app.component';
@@ -21,6 +25,7 @@ bootstrapApplication(AppComponent, {
     provideAuth(() =>
       initializeAuth(getApp(), {
         persistence: [browserLocalPersistence, indexedDBLocalPersistence],
+        popupRedirectResolver: browserPopupRedirectResolver,
       }),
     ),
   ],

@@ -44,5 +44,11 @@ export class LoginPage {
     }
   }
 
-  loginWithGoogle() { this.authService.signInWithGoogle(); }
+  async loginWithGoogle() {
+    this.loginError = '';
+    const error = await this.authService.signInWithGoogle();
+    if (error) {
+      this.loginError = error;
+    }
+  }
 }

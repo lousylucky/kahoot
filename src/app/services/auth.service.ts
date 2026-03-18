@@ -82,23 +82,50 @@ export class AuthService {
   }
 
   async signInWithGoogle() {
-    if (Capacitor.isNativePlatform()) {
-      const result = await FirebaseAuthentication.signInWithGoogle();
-      const idToken = result.credential?.idToken;
+    try {
+      if (Capacitor.isNativePlatform()) {
+        const result = await FirebaseAuthentication.signInWithGoogle();
+        const idToken = result.credential?.idToken;
 
-      if (!idToken) {
-        throw new Error('Google sign-in succeeded but no ID token was returned.');
+        if (!idToken) {
+          throw new Error('Google sign-in succeeded but no ID token was returned.');
+        }
+
+        const credential = GoogleAuthProvider.credential(idToken);
+        await signInWithCredential(this.auth, credential);
+      } else {
+        const provider = new GoogleAuthProvider();
+        await signInWithPopup(this.auth, provider);
       }
 
-      const credential = GoogleAuthProvider.credential(idToken);
-      await signInWithCredential(this.auth, credential);
-    } else {
-      const provider = new GoogleAuthProvider();
-      await signInWithPopup(this.auth, provider);
-    }
+      this.markRecentLogin();
+      await this.router.navigateByUrl('/quizzes');
+      return null;
+    } catch (error: any) {
+      console.error('Google sign-in failed:', error);
+      const code: string = error?.code ?? '';
 
-    this.markRecentLogin();
-    this.router.navigateByUrl('/quizzes');
+      if (code === 'auth/operation-not-allowed') {
+        return 'Google sign-in is not enabled in Firebase Authentication.';
+      }
+      if (code === 'auth/unauthorized-domain') {
+        return 'This web domain is not authorized in Firebase Authentication.';
+      }
+      if (code === 'auth/popup-blocked') {
+        return 'The Google sign-in popup was blocked by the browser.';
+      }
+      if (code === 'auth/popup-closed-by-user') {
+        return 'The Google sign-in popup was closed before completion.';
+      }
+      if (code === 'auth/cancelled-popup-request') {
+        return 'Another Google sign-in popup request is already in progress.';
+      }
+      if (code === 'auth/account-exists-with-different-credential') {
+        return 'An account already exists with the same email using a different sign-in method.';
+      }
+
+      return error?.message ?? 'Google sign-in failed.';
+    }
   }
 
   async logout(): Promise<void> {
