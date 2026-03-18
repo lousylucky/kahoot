@@ -66,10 +66,14 @@
             placeholder="Your display name"
             type="text"
             autocomplete="nickname"
+            maxlength="10"
+            (ionInput)="onAliasInput($event)"
           ></ion-input>
         </ion-item>
         @if (f['alias'].touched && f['alias'].invalid) {
-          <p class="field-error">Alias is required.</p>
+          <p class="field-error">
+            {{ f['alias'].errors?.['required'] ? 'Alias is required.' : 'Alias must be 14 characters or fewer.' }}
+          </p>
         }
       </div>
 
@@ -147,12 +151,6 @@
     <ion-icon name="logo-google" slot="start"></ion-icon>
     Continue with Google
   </ion-button>
-
-  @if (registerError) {
-    <div class="error-banner">
-      <span class="error-text">{{ registerError }}</span>
-    </div>
-  }
 
       <!-- Login link -->
       <p class="login-row">

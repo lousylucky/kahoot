@@ -34,7 +34,7 @@ export class RegisterPage {
 
   registerForm = this.fb.group({
     email:           ['', [Validators.email, Validators.required]],
-    alias:           ['', [Validators.required]],
+    alias:           ['', [Validators.required, Validators.maxLength(10)]],
     password:        ['', [Validators.required, Validators.minLength(6), strongPasswordValidator()]],
     passwordConfirm: ['', passwordConfirmMatchPasswordValidator()],
   });
@@ -77,6 +77,16 @@ export class RegisterPage {
       }
     } finally {
       this.loading.set(false);
+    }
+  }
+
+  onAliasInput(event: Event) {
+    const input = event.target as HTMLIonInputElement;
+    const value = (input.value as string) ?? '';
+    if (value.length > 14) {
+      const truncated = value.slice(0, 14);
+      input.value = truncated;
+      this.registerForm.get('alias')!.setValue(truncated, { emitEvent: false });
     }
   }
 
