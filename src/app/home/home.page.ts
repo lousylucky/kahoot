@@ -3,7 +3,6 @@ import { Router } from '@angular/router';
 import { Auth, user } from '@angular/fire/auth';
 import {
   IonButton,
-  IonButtons,
   IonContent,
   IonFab,
   IonFabButton,
@@ -30,7 +29,6 @@ import { UserService } from '../services/user.service';
     IonToolbar,
     IonTitle,
     IonButton,
-    IonButtons,
     IonIcon,
     IonContent,
     IonFab,

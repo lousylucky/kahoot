@@ -22,10 +22,8 @@ export class UserService {
 
   usersCollection = collection(this.firestore, 'users');
 
-  create(user: UserWithAlias) {
-    return setDoc(doc(this.firestore, `users/${user.uid}`), {
-      alias: user.alias,
-    });
+  create(uid: string, alias: string) {
+    return setDoc(doc(this.firestore, `users/${uid}`), { alias });
   }
 
   getAll() {
