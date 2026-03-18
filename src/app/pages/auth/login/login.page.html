@@ -51,10 +51,7 @@
 
       <!-- Error -->
       @if (loginError) {
-        <div class="error-banner">
-          <span class="error-icon">⚠</span>
-          <span class="error-text">{{ loginError }}</span>
-        </div>
+        <div class="error-banner">{{ loginError }}</div>
       }
 
       <!-- Forgot -->
@@ -67,9 +64,14 @@
         expand="block"
         type="submit"
         class="submit-btn"
-        [disabled]="loginForm.invalid"
+        [disabled]="loginForm.invalid || loading()"
       >
-        Sign in
+        @if (loading()) {
+          <ion-spinner name="crescent" class="btn-spinner"></ion-spinner>
+          Signing in...
+        } @else {
+          Sign in
+        }
       </ion-button>
 
       <!-- Divider -->
