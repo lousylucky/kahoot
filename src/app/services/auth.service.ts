@@ -10,6 +10,7 @@ import {
   sendPasswordResetEmail,
   sendEmailVerification,
   GoogleAuthProvider,
+  signInWithCredential,
   signInWithPopup,
 } from '@angular/fire/auth';
 import { Router } from '@angular/router';
@@ -82,7 +83,15 @@ export class AuthService {
 
   async signInWithGoogle() {
     if (Capacitor.isNativePlatform()) {
-      await FirebaseAuthentication.signInWithGoogle();
+      const result = await FirebaseAuthentication.signInWithGoogle();
+      const idToken = result.credential?.idToken;
+
+      if (!idToken) {
+        throw new Error('Google sign-in succeeded but no ID token was returned.');
+      }
+
+      const credential = GoogleAuthProvider.credential(idToken);
+      await signInWithCredential(this.auth, credential);
     } else {
       const provider = new GoogleAuthProvider();
       await signInWithPopup(this.auth, provider);
@@ -93,6 +102,10 @@ export class AuthService {
   }
 
   async logout(): Promise<void> {
+    if (Capacitor.isNativePlatform()) {
+      await FirebaseAuthentication.signOut();
+    }
+
     await signOut(this.auth);
     this.clearRecentLogin();
     this.router.navigateByUrl('/login');
