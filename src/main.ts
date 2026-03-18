@@ -10,6 +10,7 @@ import {
   browserPopupRedirectResolver,
   indexedDBLocalPersistence,
 } from 'firebase/auth';
+import { Capacitor } from '@capacitor/core';
 
 import { routes } from './app/app.routes';
 import { AppComponent } from './app/app.component';
@@ -25,7 +26,7 @@ bootstrapApplication(AppComponent, {
     provideAuth(() =>
       initializeAuth(getApp(), {
         persistence: [browserLocalPersistence, indexedDBLocalPersistence],
-        popupRedirectResolver: browserPopupRedirectResolver,
+        ...(Capacitor.isNativePlatform() ? {} : { popupRedirectResolver: browserPopupRedirectResolver }),
       }),
     ),
   ],
