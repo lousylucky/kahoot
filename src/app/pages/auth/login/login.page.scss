@@ -1,3 +1,5 @@
+@use '../../../../theme/shared-ui' as ui;
+
 /* ── Tokens ─────────────────────────────────────────── */
 :host {
   --font-heading: 'Sora', sans-serif;
@@ -135,30 +137,8 @@ ion-content.login-content {
   }
 }
 
-/* ── Error banner ────────────────────────────────────── */
-.error-banner {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 16px;
-  margin-bottom: 12px;
-  background: rgba(var(--ion-color-danger-rgb), 0.08);
-  border-radius: 10px;
-  border-left: 3px solid var(--ion-color-danger);
-
-  .error-icon {
-    font-size: 1.1rem;
-    flex-shrink: 0;
-    color: var(--ion-color-danger);
-  }
-
-  .error-text {
-    font-family: var(--font-body);
-    font-size: 0.85rem;
-    font-weight: 500;
-    color: var(--ion-color-danger-shade);
-  }
-}
+/* ── Error banner (shared) ── */
+@include ui.error-banner;
 
 /* ── Forgot link ─────────────────────────────────────── */
 .forgot-row {
@@ -233,6 +213,9 @@ ion-content.login-content {
   color: var(--ion-color-step-500);
   margin: 16px 0 0;
 }
+
+/* ── Shared UI ── */
+@include ui.btn-spinner;
 
 /* ── Float animation ─────────────────────────────────── */
 @keyframes float {

@@ -1,3 +1,5 @@
+@use '../../../../theme/shared-ui' as ui;
+
 :host {
   --font-heading: 'Sora', sans-serif;
   --font-body: 'DM Sans', sans-serif;
@@ -200,6 +202,44 @@ ion-content.register-content { --background: #f5f6fa; }
   margin-left: 4px;
   &:hover { text-decoration: underline; }
 }
+
+/* ── Divider ── */
+.divider {
+  display: flex;
+  align-items: center;
+  margin: 16px 0;
+
+  &::before, &::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: rgba(0,0,0,0.1);
+  }
+  span {
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    color: var(--ion-color-step-450);
+    padding: 0 12px;
+  }
+}
+
+/* ── Google button ── */
+.google-btn {
+  --border-radius: 12px;
+  --border-color: rgba(0,0,0,0.12);
+  --color: #444;
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 0.9rem;
+  height: 48px;
+  margin: 0;
+}
+
+/* ── Shared UI ── */
+@include ui.error-banner;
+@include ui.btn-spinner;
+@include ui.success-card;
+@include ui.shared-animations;
 
 @keyframes float {
   0%, 100% { transform: translateY(0); }
