@@ -17,8 +17,29 @@
       <p class="brand-sub">Create your account and start quizzing</p>
     </div>
 
+    <!-- ── Success state ── -->
+    @if (success()) {
+      <div class="success-card">
+        <ion-icon name="checkmark-circle-outline" class="success-icon"></ion-icon>
+        <h2 class="success-title">Account created!</h2>
+        <p class="success-text">
+          We've sent a verification email to <strong>{{ f['email'].value }}</strong>.
+          Please check your inbox and click the link to activate your account.
+        </p>
+        <p class="success-hint">Don't see it? Check your spam folder.</p>
+        <ion-button expand="block" routerLink="/login" class="submit-btn">
+          Go to Sign in
+        </ion-button>
+      </div>
+    } @else {
+
     <!-- ── Card ── -->
     <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="register-card">
+
+      <!-- Error banner -->
+      @if (errorMsg()) {
+        <div class="error-banner">{{ errorMsg() }}</div>
+      }
 
       <!-- Email -->
       <div class="field-group">
@@ -110,9 +131,14 @@
         expand="block"
         type="submit"
         class="submit-btn"
-        [disabled]="registerForm.invalid"
+        [disabled]="registerForm.invalid || loading()"
       >
-        Create account
+        @if (loading()) {
+          <ion-spinner name="crescent" class="btn-spinner"></ion-spinner>
+          Creating account...
+        } @else {
+          Create account
+        }
       </ion-button>
 
       <div class="divider"><span>or</span></div>
@@ -129,5 +155,6 @@
       </p>
 
     </form>
+    }
   </div>
 </ion-content>
