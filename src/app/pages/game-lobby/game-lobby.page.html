@@ -13,6 +13,10 @@
         <div class="entry-code-section">
           <p class="label">Entry Code</p>
           <h1 class="entry-code">{{ g.entryCode }}</h1>
+          @if (qrDataUrl()) {
+            <img [src]="qrDataUrl()" alt="QR Code" class="qr-code" />
+            <p class="qr-hint">Scan to join</p>
+          }
         </div>
 
         <div class="players-section">

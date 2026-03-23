@@ -21,6 +21,18 @@
     color: var(--ion-color-primary);
     margin: 0;
   }
+
+  .qr-code {
+    margin-top: 16px;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .qr-hint {
+    font-size: 0.8rem;
+    color: var(--ion-color-medium);
+    margin: 8px 0 0;
+  }
 }
 
 .players-section {
