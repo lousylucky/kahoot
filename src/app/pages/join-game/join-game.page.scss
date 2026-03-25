@@ -156,6 +156,85 @@ ion-content.join-content {
   }
 }
 
+/* ── Divider ─────────────────────────────────────────── */
+.divider {
+  display: flex;
+  align-items: center;
+  margin: 16px 0;
+
+  &::before, &::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: rgba(0, 0, 0, 0.1);
+  }
+
+  span {
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    color: var(--ion-color-step-450);
+    padding: 0 12px;
+  }
+}
+
+/* ── Scan button ────────────────────────────────────── */
+.scan-btn {
+  --border-radius: var(--field-radius);
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 0.9rem;
+  height: 48px;
+  margin: 0;
+}
+
+/* ── Scanner card ───────────────────────────────────── */
+.scanner-card {
+  background: #ffffff;
+  border-radius: var(--card-radius);
+  box-shadow: var(--shadow-card);
+  border: 1px solid rgba(0, 0, 0, 0.07);
+  padding: 16px;
+  overflow: hidden;
+}
+
+.scanner-viewport {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  aspect-ratio: 1;
+  background: #000;
+  margin-bottom: 16px;
+
+  video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.scanner-canvas {
+  display: none;
+}
+
+.scanner-frame {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 60%;
+  height: 60%;
+  border: 3px solid rgba(255, 255, 255, 0.7);
+  border-radius: 16px;
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.3);
+}
+
+.stop-btn {
+  --border-radius: var(--field-radius);
+  font-family: var(--font-heading);
+  font-weight: 600;
+  margin: 0;
+}
+
 /* ── Float animation ─────────────────────────────────── */
 @keyframes float {
   0%, 100% { transform: translateY(0); }

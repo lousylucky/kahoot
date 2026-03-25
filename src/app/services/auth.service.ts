@@ -14,10 +14,11 @@ import {
   signInWithPopup,
 } from '@angular/fire/auth';
 import { Router } from '@angular/router';
-import { Observable } from 'rxjs';
+import { Observable, firstValueFrom } from 'rxjs';
 import { FirebaseAuthentication } from '@capacitor-firebase/authentication';
 import { UserService } from './user.service';
 import { Capacitor } from '@capacitor/core';
+import { AlertController } from '@ionic/angular/standalone';
 
 const RECENT_LOGIN_STORAGE_KEY = 'kahoot_recent_login_at';
 
@@ -28,6 +29,7 @@ export class AuthService {
   private auth = inject(Auth);
   private router = inject(Router);
   private userService = inject(UserService);
+  private alertCtrl = inject(AlertController);
 
   getConnectedUser(): Observable<User | null> {
     return user(this.auth);
@@ -108,6 +110,7 @@ export class AuthService {
         await signInWithPopup(this.auth, provider);
       }
 
+      await this.ensureAlias();
       this.markRecentLogin();
       await this.router.navigateByUrl('/quizzes');
       return null;
@@ -150,6 +153,58 @@ export class AuthService {
 
   sendResetPasswordLink(email: string): Promise<void> {
     return sendPasswordResetEmail(this.auth, email);
+  }
+
+  private async ensureAlias(): Promise<void> {
+    const uid = this.auth.currentUser?.uid;
+    if (!uid) return;
+
+    try {
+      const userData = await firstValueFrom(this.userService.getById(uid));
+      if (userData?.alias) return;
+    } catch {
+      // document doesn't exist yet
+    }
+
+    const alias = await this.promptForAlias();
+    if (alias) {
+      await this.userService.create(uid, alias);
+    }
+  }
+
+  private promptForAlias(): Promise<string | null> {
+    return new Promise(async (resolve) => {
+      const alert = await this.alertCtrl.create({
+        header: 'Welcome!',
+        subHeader: 'Choose your pseudo',
+        message: 'Pick a display name that other players will see during games.',
+        cssClass: 'alias-prompt',
+        backdropDismiss: false,
+        inputs: [
+          {
+            name: 'alias',
+            type: 'text',
+            placeholder: 'e.g. QuizMaster42',
+            attributes: { maxlength: 14 },
+          },
+        ],
+        buttons: [
+          {
+            text: 'Let\'s go!',
+            cssClass: 'alias-confirm-btn',
+            handler: (data) => {
+              const value = data?.alias?.trim();
+              if (!value) {
+                return false;
+              }
+              resolve(value);
+              return true;
+            },
+          },
+        ],
+      });
+      await alert.present();
+    });
   }
 
   private waitForCurrentUser(timeoutMs = 5000): Promise<User | null> {

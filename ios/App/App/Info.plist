@@ -79,5 +79,7 @@
 	</dict>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>Camera is needed to scan QR codes to join games.</string>
 </dict>
 </plist>

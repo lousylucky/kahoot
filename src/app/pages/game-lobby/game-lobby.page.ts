@@ -14,6 +14,7 @@ import {
 } from '@ionic/angular/standalone';
 import { GameService } from '../../services/game.service';
 import { Game } from '../../models/game';
+import QRCode from 'qrcode';
 
 @Component({
   selector: 'app-game-lobby',
@@ -30,6 +31,7 @@ export class GameLobbyPage implements OnInit, OnDestroy {
   private injector = inject(Injector);
 
   game = signal<Game | undefined>(undefined);
+  qrDataUrl = signal<string>('');
   private gameSub?: Subscription;
 
   get isAdmin(): boolean {
@@ -40,8 +42,15 @@ export class GameLobbyPage implements OnInit, OnDestroy {
     const gameId = this.route.snapshot.paramMap.get('id');
     if (gameId) {
       this.gameSub = runInInjectionContext(this.injector, () =>
-        this.gameService.getGameById(gameId).subscribe((game) => {
+        this.gameService.getGameById(gameId).subscribe(async (game) => {
           this.game.set(game);
+          if (!this.qrDataUrl() && game.entryCode) {
+            this.qrDataUrl.set(await QRCode.toDataURL(game.entryCode, {
+              width: 180,
+              margin: 2,
+              color: { dark: '#1a1a2e', light: '#ffffff' },
+            }));
+          }
           if (game.gameStatus === 'in_game') {
             this.router.navigate(['/play-quiz', game.id], {
               queryParams: { mode: 'multiplayer' },
