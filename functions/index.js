@@ -26,6 +26,7 @@ exports.deleteExpiredGames = onSchedule(
       const expiredGamesSnapshot = await db
         .collection("games")
         .where("created", "<=", cutoffTimestamp)
+        .where("gameStatus", "==", "finished")
         .limit(DELETE_BATCH_SIZE)
         .get();
 
@@ -44,5 +45,61 @@ exports.deleteExpiredGames = onSchedule(
       cutoffDate: cutoffDate.toISOString(),
       daysToKeep: DAYS_TO_KEEP,
     });
+  }
+);
+
+exports.markStaleGamesAsFinished = onSchedule(
+  {
+    schedule: "*/2 * * * *",
+    timeZone: "Europe/Paris",
+    region: "europe-west1",
+    timeoutSeconds: 120,
+    memory: "256MiB",
+  },
+  async () => {
+    const db = admin.firestore();
+
+    const activeGamesSnapshot = await db
+      .collection("games")
+      .where("gameStatus", "in", ["waiting", "in_game"])
+      .get();
+
+    if (activeGamesSnapshot.empty) {
+      logger.info("No active games to check.");
+      return;
+    }
+
+    let markedCount = 0;
+
+    for (const gameDoc of activeGamesSnapshot.docs) {
+      const game = gameDoc.data();
+      const created = game.created.toDate();
+      let timeoutMs;
+
+      if (game.gameStatus === "waiting") {
+        // 5 minutes max en attente
+        timeoutMs = 5 * 60 * 1000;
+      } else {
+        // in_game : 2 min par question + 5 min de marge
+        const questionsAgg = await db
+          .collection("quizzes")
+          .doc(game.quizId)
+          .collection("questions")
+          .count()
+          .get();
+
+        const questionCount = questionsAgg.data().count;
+        timeoutMs = (2 * questionCount + 5) * 60 * 1000;
+      }
+
+      const expiryTime = new Date(created.getTime() + timeoutMs);
+
+      if (new Date() > expiryTime) {
+        await gameDoc.ref.update({ gameStatus: "finished" });
+        markedCount += 1;
+      }
+    }
+
+    logger.info("Stale games marked as finished.", { markedCount });
   }
 );
