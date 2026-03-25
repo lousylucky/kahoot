@@ -45,6 +45,32 @@
         <p class="empty-sub">Tap the + button to create your first quiz</p>
       </div>
     }
+
+    @if (activeGames().length > 0) {
+      <div class="active-section">
+        <div class="active-header">
+          <span class="active-label">En cours</span>
+          <ion-badge color="warning">{{ activeGames().length }}</ion-badge>
+        </div>
+
+        @for (game of activeGames(); track game.id) {
+          <div class="active-card" (click)="resumeGame(game)">
+            <div class="active-card-body">
+              <div class="active-indicator"></div>
+              <div class="active-info">
+                <h3 class="active-title">{{ game.quizTitle || 'Loading...' }}</h3>
+                <p class="active-meta">
+                  <span class="active-host">by {{ game.adminAlias || '...' }}</span>
+                  <span class="active-status">In game</span>
+                  <span class="active-players">{{ game.players.length }} player{{ game.players.length !== 1 ? 's' : '' }}</span>
+                </p>
+              </div>
+              <ion-icon class="active-chevron" name="play-outline"></ion-icon>
+            </div>
+          </div>
+        }
+      </div>
+    }
   </div>
 
   <ion-fab vertical="bottom" horizontal="end" slot="fixed">

@@ -194,6 +194,115 @@ ion-content.quizzes-content {
   }
 }
 
+.active-section {
+  margin-top: 32px;
+}
+
+.active-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+
+  .active-label {
+    font-family: var(--font-heading);
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1a1a2e;
+    letter-spacing: -0.3px;
+  }
+
+  ion-badge {
+    --padding-start: 7px;
+    --padding-end: 7px;
+    font-size: 0.7rem;
+    border-radius: 10px;
+  }
+}
+
+.active-card {
+  background: #ffffff;
+  border-radius: var(--card-radius);
+  box-shadow: var(--shadow-card);
+  border: 1px solid rgba(0, 0, 0, 0.07);
+  margin-bottom: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+
+  &:active {
+    transform: scale(0.98);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
+  }
+}
+
+.active-card-body {
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  gap: 12px;
+}
+
+.active-indicator {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #ff9800;
+  flex-shrink: 0;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.active-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.active-title {
+  font-family: var(--font-heading);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin: 0 0 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.active-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  color: grey;
+  margin: 0;
+
+  .active-host {
+    color: var(--ion-color-primary);
+    font-weight: 600;
+  }
+
+  .active-status {
+    background: rgba(255, 152, 0, 0.12);
+    color: #e65100;
+    padding: 1px 8px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.7rem;
+  }
+}
+
+.active-chevron {
+  font-size: 1.4rem;
+  color: #ff9800;
+  flex-shrink: 0;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
 ion-fab-button {
   --box-shadow: 0 4px 14px rgba(var(--ion-color-primary-rgb), 0.4);
 }

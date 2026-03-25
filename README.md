@@ -13,6 +13,7 @@ copie SHA1 dnas firebase
 
 
 npm install
+npm install -g firebase-tools
 firebase logout
 firebase login
 cd .\functions\

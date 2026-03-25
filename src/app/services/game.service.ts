@@ -75,6 +75,18 @@ export class GameService {
     );
   }
 
+  getActiveGamesForPlayer(uid: string): Observable<Game[]> {
+    const gamesCol = collection(this.firestore, 'games');
+    const q = query(
+      gamesCol,
+      where('players', 'array-contains', uid),
+      where('gameStatus', '==', 'in_game')
+    );
+    return runInInjectionContext(this.injector, () =>
+      collectionData(q, { idField: 'id' }) as Observable<Game[]>
+    );
+  }
+
   async findGameByEntryCode(code: string): Promise<Game | null> {
     const gamesCol = collection(this.firestore, 'games');
     const q = query(

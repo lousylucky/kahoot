@@ -2,6 +2,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { Auth, user } from '@angular/fire/auth';
 import {
+  IonBadge,
   IonButton,
   IonContent,
   IonFab,
@@ -12,12 +13,18 @@ import {
   IonToolbar,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { add, chevronForwardOutline, createOutline, logOutOutline } from 'ionicons/icons';
-import { filter, switchMap, take } from 'rxjs/operators';
+import { add, chevronForwardOutline, createOutline, logOutOutline, playOutline } from 'ionicons/icons';
+import { filter, take } from 'rxjs/operators';
 import { Quiz } from '../models/quiz';
+import { Game } from '../models/game';
 import { GameService } from '../services/game.service';
 import { QuizService } from '../services/quizService';
 import { UserService } from '../services/user.service';
+
+interface ActiveGame extends Game {
+  adminAlias?: string;
+  quizTitle?: string;
+}
 
 @Component({
   selector: 'app-home',
@@ -25,6 +32,7 @@ import { UserService } from '../services/user.service';
   standalone: true,
   styleUrls: ['home.page.scss'],
   imports: [
+    IonBadge,
     IonHeader,
     IonToolbar,
     IonTitle,
@@ -38,6 +46,7 @@ import { UserService } from '../services/user.service';
 export class HomePage implements OnInit {
   quizzes = signal<Quiz[]>([]);
   alias = signal<string>('');
+  activeGames = signal<ActiveGame[]>([]);
 
   private quizService = inject(QuizService);
   private userService = inject(UserService);
@@ -46,7 +55,7 @@ export class HomePage implements OnInit {
   private router = inject(Router);
 
   constructor() {
-    addIcons({ add, chevronForwardOutline, createOutline, logOutOutline });
+    addIcons({ add, chevronForwardOutline, createOutline, logOutOutline, playOutline });
   }
 
   ngOnInit() {
@@ -59,14 +68,48 @@ export class HomePage implements OnInit {
       .pipe(
         filter((u): u is NonNullable<typeof u> => !!u),
         take(1),
-        switchMap((u) => this.userService.getById(u.uid)),
-        take(1)
       )
       .subscribe({
-        next: (userData) => {
-          if (userData?.alias) {
-            this.alias.set(userData.alias);
-          }
+        next: (u) => {
+          this.userService.getById(u.uid).pipe(take(1)).subscribe({
+            next: (userData) => {
+              if (userData?.alias) {
+                this.alias.set(userData.alias);
+              }
+            },
+          });
+
+          this.gameService.getActiveGamesForPlayer(u.uid).subscribe({
+            next: (games) => {
+              games.forEach((game, i) => {
+                const ag = game as ActiveGame;
+
+                this.userService.getById(game.adminId).pipe(take(1)).subscribe({
+                  next: (adminData) => {
+                    ag.adminAlias = adminData?.alias || 'Unknown';
+                    this.activeGames.update((prev) => {
+                      const copy = [...prev];
+                      copy[i] = ag;
+                      return copy;
+                    });
+                  },
+                });
+
+                this.quizService.getById(game.quizId).pipe(take(1)).subscribe({
+                  next: (quiz) => {
+                    ag.quizTitle = quiz?.title || 'Quiz';
+                    this.activeGames.update((prev) => {
+                      const copy = [...prev];
+                      copy[i] = ag;
+                      return copy;
+                    });
+                  },
+                });
+              });
+
+              this.activeGames.set(games as ActiveGame[]);
+            },
+          });
         },
       });
   }
@@ -92,6 +135,10 @@ export class HomePage implements OnInit {
       const gameId = await this.gameService.createGame(quiz, uid);
       this.router.navigate(['/game-lobby', gameId]);
     });
+  }
+
+  resumeGame(game: ActiveGame) {
+    this.router.navigate(['/play-quiz', game.id], { queryParams: { mode: 'multiplayer' } });
   }
 
   async onLogout() {
