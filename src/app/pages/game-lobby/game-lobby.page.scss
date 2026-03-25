@@ -4,7 +4,7 @@
   align-items: center;
   justify-content: center;
   min-height: 70vh;
-  gap: 24px;
+  gap: 12px;
 }
 
 .entry-code-section {
@@ -15,7 +15,7 @@
   }
 
   .entry-code {
-    font-size: 3.5rem;
+    font-size: 2.5rem;
     font-weight: 700;
     letter-spacing: 0.3em;
     color: var(--ion-color-primary);
@@ -49,7 +49,7 @@
 }
 
 .start-btn {
-  margin-top: 16px;
+  margin-top: 0px;
   width: 100%;
   max-width: 300px;
 }
