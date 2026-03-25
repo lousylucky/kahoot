@@ -1,0 +1,128 @@
+:host {
+  --font-heading: 'Sora', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+  --card-radius: 20px;
+  --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.09), 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+.back-white {
+  --color: #ffffff;
+  --color-hover: rgba(255,255,255,0.8);
+  --color-activated: rgba(255,255,255,0.7);
+  font-size: 1.2rem;
+}
+
+ion-content.profile-content {
+  --background: #f5f6fa;
+}
+
+.profile-wrapper {
+  padding: 32px 16px 100px;
+  max-width: 520px;
+  margin: 0 auto;
+
+  @media (min-width: 480px) {
+    padding: 32px 24px 100px;
+  }
+}
+
+.profile-card {
+  background: linear-gradient(135deg, #ffffff 0%, #f8faff 100%);
+  border-radius: var(--card-radius);
+  box-shadow: var(--shadow-card);
+  border: 1px solid rgba(var(--ion-color-primary-rgb), 0.12);
+  padding: 20px;
+}
+
+.profile-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.profile-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 18px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, var(--ion-color-primary), #6ea8ff);
+  color: #ffffff;
+  font-family: var(--font-heading);
+  font-size: 1.4rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  flex-shrink: 0;
+}
+
+.profile-identity {
+  min-width: 0;
+}
+
+.profile-kicker {
+  margin: 0 0 4px;
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--ion-color-primary);
+}
+
+.profile-email {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1a1a2e;
+  word-break: break-word;
+}
+
+.profile-field {
+  margin-bottom: 16px;
+}
+
+.profile-label {
+  display: inline-block;
+  margin-bottom: 8px;
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #4d5573;
+}
+
+.profile-input {
+  --background: #ffffff;
+  --padding-start: 14px;
+  --inner-padding-end: 14px;
+  --border-radius: 14px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 14px;
+
+  ion-input {
+    --padding-top: 12px;
+    --padding-bottom: 12px;
+    font-family: var(--font-body);
+    font-size: 0.96rem;
+    color: #1a1a2e;
+  }
+}
+
+.profile-error {
+  margin: 8px 0 0;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  color: var(--ion-color-danger);
+}
+
+.profile-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+
+  ion-button {
+    margin: 0;
+    flex: 1 1 170px;
+  }
+}

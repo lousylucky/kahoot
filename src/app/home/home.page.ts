@@ -13,7 +13,7 @@ import {
   IonToolbar,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { add, chevronForwardOutline, createOutline, logOutOutline, playOutline } from 'ionicons/icons';
+import { add, chevronForwardOutline, createOutline, personCircleOutline, playOutline } from 'ionicons/icons';
 import { filter, take } from 'rxjs/operators';
 import { Quiz } from '../models/quiz';
 import { Game } from '../models/game';
@@ -55,7 +55,7 @@ export class HomePage implements OnInit {
   private router = inject(Router);
 
   constructor() {
-    addIcons({ add, chevronForwardOutline, createOutline, logOutOutline, playOutline });
+    addIcons({ add, chevronForwardOutline, createOutline, personCircleOutline, playOutline });
   }
 
   ngOnInit() {
@@ -114,6 +114,10 @@ export class HomePage implements OnInit {
       });
   }
 
+  gotoProfile() {
+    this.router.navigateByUrl('/profile');
+  }
+
   openAddQuiz() {
     this.router.navigateByUrl('/add-quiz');
   }
@@ -139,10 +143,5 @@ export class HomePage implements OnInit {
 
   resumeGame(game: ActiveGame) {
     this.router.navigate(['/play-quiz', game.id], { queryParams: { mode: 'multiplayer' } });
-  }
-
-  async onLogout() {
-    await this.auth.signOut();
-    this.router.navigateByUrl('/login');
   }
 }

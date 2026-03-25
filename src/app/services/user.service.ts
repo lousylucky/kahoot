@@ -26,6 +26,10 @@ export class UserService {
     return setDoc(doc(this.firestore, `users/${uid}`), { alias });
   }
 
+  updateAlias(uid: string, alias: string) {
+    return setDoc(doc(this.firestore, `users/${uid}`), { alias }, { merge: true });
+  }
+
   getAll() {
     return collectionData(this.usersCollection, {
       idField: 'id',
