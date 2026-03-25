@@ -13,7 +13,7 @@ exports.deleteExpiredGames = onSchedule(
     timeZone: "Europe/Paris",
     region: "europe-west1",
     timeoutSeconds: 540,
-    memory: "1GiB",
+    memory: "256MiB",
   },
   async () => {
     const db = admin.firestore();
