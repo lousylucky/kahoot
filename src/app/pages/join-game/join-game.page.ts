@@ -16,6 +16,7 @@ import { GameService } from '../../services/game.service';
 import { addIcons } from 'ionicons';
 import { scanOutline, closeOutline } from 'ionicons/icons';
 import jsQR from 'jsqr';
+import { Camera } from '@capacitor/camera';
 
 addIcons({ scanOutline, closeOutline });
 
@@ -43,6 +44,13 @@ export class JoinGamePage {
   async scanQR() {
     this.error = '';
     try {
+      // Demander la permission runtime sur Android
+      const permission = await Camera.requestPermissions({ permissions: ['camera'] });
+      if (permission.camera !== 'granted') {
+        this.error = 'Camera permission is required to scan QR codes.';
+        return;
+      }
+
       this.stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: 'environment' },
       });

@@ -1,7 +1,7 @@
 build apk 
-ionic build --configuration=development
-npx cap copy android
-cd android
+ionic build
+npx cap sync
+cd .\android\
 .\gradlew assembleDebug
 
 
@@ -36,6 +36,10 @@ Change waiting to finish tous les minutes si waiting plus de 5min
 Change in_game to finish tous les minutes si in_game plus de 2*nb question + 5 min
 Connexion google sign in
 Site internet app hosting
-Qr code pour taper le code
+Qr code pour taper le code et rejoindre la game
+Score par question et Score final avec classement
+
+
+Scénario : 
 
 
