@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import {
-  IonBackButton, IonButton, IonButtons, IonContent, IonInput, IonItem, IonIcon, IonToolbar, IonHeader, IonTitle } from '@ionic/angular/standalone';
+  IonButton, IonButtons, IonContent, IonInput, IonItem, IonIcon, IonToolbar, IonHeader, IonTitle } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { mailOutline, arrowBackOutline, checkmarkCircleOutline } from 'ionicons/icons';
 import { AuthService } from 'src/app/services/auth.service';
@@ -14,7 +14,7 @@ addIcons({ mailOutline, arrowBackOutline, checkmarkCircleOutline });
   selector: 'app-password-retrieve',
   templateUrl: './password-retrieve.page.html',
   styleUrls: ['./password-retrieve.page.scss'],
-  imports: [IonTitle, IonHeader, IonToolbar, IonButtons, IonBackButton,
+  imports: [IonTitle, IonHeader, IonToolbar, IonButtons,
     IonButton, IonContent, IonInput, IonItem, IonIcon,
     CommonModule, ReactiveFormsModule, RouterLink,
   ],

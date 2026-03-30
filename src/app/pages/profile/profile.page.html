@@ -1,0 +1,52 @@
+<ion-header [translucent]="true">
+  <ion-toolbar class="app-header">
+    <ion-buttons slot="start">
+      <ion-button fill="clear" style="--color: #ffffff; font-size: 1.4rem;" (click)="goBack()">
+        <ion-icon slot="icon-only" name="chevron-back-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Profile</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="profile-content">
+  <div class="profile-wrapper">
+    <section class="profile-card">
+      <div class="profile-header">
+        <div class="profile-avatar">{{ avatarLetter() }}</div>
+        <div class="profile-identity">
+          <p class="profile-kicker">Profile</p>
+          <p class="profile-email">{{ email() || 'No email address' }}</p>
+        </div>
+      </div>
+
+      <div class="profile-field">
+        <label class="profile-label" for="alias-input">Alias</label>
+        <ion-item class="profile-input" lines="none">
+          <ion-input
+            id="alias-input"
+            [value]="editableAlias()"
+            placeholder="Your alias"
+            type="text"
+            autocomplete="nickname"
+            maxlength="14"
+            (ionInput)="onAliasInput($event)"
+          ></ion-input>
+        </ion-item>
+        @if (aliasError()) {
+          <p class="profile-error">{{ aliasError() }}</p>
+        }
+      </div>
+
+      <div class="profile-actions">
+        <ion-button (click)="saveAlias()" [disabled]="!canSaveAlias()">
+          {{ isSavingAlias() ? 'Saving...' : 'Save alias' }}
+        </ion-button>
+        <ion-button fill="outline" color="danger" (click)="onLogout()">
+          <ion-icon slot="start" name="log-out-outline"></ion-icon>
+          Log out
+        </ion-button>
+      </div>
+    </section>
+  </div>
+</ion-content>
