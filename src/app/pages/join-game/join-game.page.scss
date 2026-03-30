@@ -1,0 +1,242 @@
+/* ── Tokens ─────────────────────────────────────────── */
+:host {
+  --font-heading: 'Sora', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+  --card-radius: 20px;
+  --field-radius: 12px;
+  --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.09), 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+/* ── Content bg ──────────────────────────────────────── */
+ion-content.join-content {
+  --background: #f5f6fa;
+}
+
+/* ── Wrapper ─────────────────────────────────────────── */
+.join-wrapper {
+  padding: 24px 35px 100px;
+  max-width: 520px;
+  margin: 0 auto;
+
+  @media (min-width: 480px) {
+    padding: 32px 24px 100px;
+  }
+}
+
+/* ── Brand block ─────────────────────────────────────── */
+.brand {
+  text-align: center;
+  margin-bottom: 28px;
+
+  .brand-icon {
+    font-size: 3rem;
+    margin-bottom: 8px;
+    display: block;
+    animation: float 3s ease-in-out infinite;
+  }
+
+  .brand-name {
+    font-family: var(--font-heading);
+    font-size: 1.8rem;
+    font-weight: 800;
+    letter-spacing: -0.8px;
+    color: var(--ion-color-primary);
+    margin: 0 0 6px;
+  }
+
+  .brand-sub {
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    color: grey;
+    margin: 0;
+  }
+}
+
+/* ── Join card ───────────────────────────────────────── */
+.join-card {
+  background: #ffffff;
+  border-radius: var(--card-radius);
+  box-shadow: var(--shadow-card);
+  border: 1px solid rgba(0, 0, 0, 0.07);
+  padding: 28px 20px;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(
+      90deg,
+      var(--ion-color-primary),
+      var(--ion-color-secondary, #5c6bc0)
+    );
+  }
+}
+
+/* ── Field group ─────────────────────────────────────── */
+.field-group {
+  margin-bottom: 20px;
+}
+
+.field-label {
+  display: block;
+  font-family: var(--font-heading);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: #5a5a6e;
+  margin-bottom: 6px;
+  padding-left: 2px;
+}
+
+.field-item {
+  --background: #f5f6fa;
+  --border-radius: var(--field-radius);
+  --padding-start: 14px;
+  --inner-padding-end: 8px;
+  --highlight-color-focused: var(--ion-color-primary);
+  --highlight-height: 2px;
+  border-radius: var(--field-radius);
+  border: 1.5px solid rgba(0, 0, 0, 0.08);
+  transition: border-color 0.2s, box-shadow 0.2s;
+
+  &:focus-within {
+    border-color: var(--ion-color-primary);
+    box-shadow: 0 0 0 3px rgba(var(--ion-color-primary-rgb), 0.12);
+    --background: #ffffff;
+  }
+
+  ion-input {
+    --color: #1a1a2e;
+    --placeholder-color: var(--ion-color-step-400);
+    font-family: var(--font-body);
+    font-size: 1.4rem;
+    font-weight: 700;
+    letter-spacing: 6px;
+    text-align: center;
+  }
+}
+
+/* ── Error ───────────────────────────────────────────── */
+.error-container {
+  padding: 10px 14px;
+  margin-bottom: 16px;
+  background: rgba(var(--ion-color-danger-rgb), 0.08);
+  border-radius: 8px;
+  border-left: 3px solid var(--ion-color-danger);
+
+  .error-text {
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--ion-color-danger);
+    margin: 0;
+  }
+}
+
+/* ── Join button ─────────────────────────────────────── */
+.join-btn {
+  --border-radius: var(--field-radius);
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: 0.3px;
+  height: 50px;
+  --box-shadow: 0 4px 14px rgba(var(--ion-color-primary-rgb), 0.35);
+  transition: transform 0.15s, box-shadow 0.15s;
+
+  &:hover:not([disabled]) {
+    transform: translateY(-1px);
+    --box-shadow: 0 6px 20px rgba(var(--ion-color-primary-rgb), 0.45);
+  }
+}
+
+/* ── Divider ─────────────────────────────────────────── */
+.divider {
+  display: flex;
+  align-items: center;
+  margin: 16px 0;
+
+  &::before, &::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: rgba(0, 0, 0, 0.1);
+  }
+
+  span {
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    color: var(--ion-color-step-450);
+    padding: 0 12px;
+  }
+}
+
+/* ── Scan button ────────────────────────────────────── */
+.scan-btn {
+  --border-radius: var(--field-radius);
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 0.9rem;
+  height: 48px;
+  margin: 0;
+}
+
+/* ── Scanner card ───────────────────────────────────── */
+.scanner-card {
+  background: #ffffff;
+  border-radius: var(--card-radius);
+  box-shadow: var(--shadow-card);
+  border: 1px solid rgba(0, 0, 0, 0.07);
+  padding: 16px;
+  overflow: hidden;
+}
+
+.scanner-viewport {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  aspect-ratio: 1;
+  background: #000;
+  margin-bottom: 16px;
+
+  video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.scanner-canvas {
+  display: none;
+}
+
+.scanner-frame {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 60%;
+  height: 60%;
+  border: 3px solid rgba(255, 255, 255, 0.7);
+  border-radius: 16px;
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.3);
+}
+
+.stop-btn {
+  --border-radius: var(--field-radius);
+  font-family: var(--font-heading);
+  font-weight: 600;
+  margin: 0;
+}
+
+/* ── Float animation ─────────────────────────────────── */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-7px); }
+}

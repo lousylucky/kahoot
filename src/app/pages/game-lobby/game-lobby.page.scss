@@ -1,0 +1,71 @@
+.lobby-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 70vh;
+  gap: 12px;
+}
+
+.entry-code-section {
+  .label {
+    font-size: 1rem;
+    color: var(--ion-color-medium);
+    margin-bottom: 8px;
+  }
+
+  .entry-code {
+    font-size: 2.5rem;
+    font-weight: 700;
+    letter-spacing: 0.3em;
+    color: var(--ion-color-primary);
+    margin: 0;
+  }
+
+  .qr-code {
+    margin-top: 16px;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .qr-hint {
+    font-size: 0.8rem;
+    color: var(--ion-color-medium);
+    margin: 8px 0 0;
+  }
+}
+
+.players-section {
+  ion-badge {
+    font-size: 1.1rem;
+    padding: 8px 16px;
+  }
+}
+
+.status-text {
+  font-size: 1.1rem;
+  color: var(--ion-color-medium);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.start-btn {
+  margin-top: 0px;
+  width: 100%;
+  max-width: 300px;
+}
+
+.waiting-admin {
+  color: var(--ion-color-medium);
+  font-style: italic;
+}
+
+.leave-btn {
+  margin-top: 8px;
+  width: 100%;
+  max-width: 300px;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}

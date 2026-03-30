@@ -1,0 +1,62 @@
+{
+  "project_info": {
+    "project_number": "8015183259",
+    "project_id": "cahot-85255",
+    "storage_bucket": "cahot-85255.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:8015183259:android:a7c9501ba3916ff251353e",
+        "android_client_info": {
+          "package_name": "io.ionic.starter"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "8015183259-7u0ss5ca37q4btqla28kkva6b2gopjsu.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "io.ionic.starter",
+            "certificate_hash": "a35a81fc2b3440db646cf662b750255a5de6fd00"
+          }
+        },
+        {
+          "client_id": "8015183259-g3nolg5rk2dbghtcfng7520p03h520tj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "io.ionic.starter",
+            "certificate_hash": "56660a924ef8f2f0d9709bb2bf01659e535518ad"
+          }
+        },
+        {
+          "client_id": "8015183259-a7eeride5aksnk4gignhg2rvva6cesk7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBOGPAEt12XfnE4jJRdygd0uR5viG3tk_Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "8015183259-a7eeride5aksnk4gignhg2rvva6cesk7.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "8015183259-96912rkd8dj1kpaubemuu651nkk9qlma.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.lukaszmatyasik.kahoot"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

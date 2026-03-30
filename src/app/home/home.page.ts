@@ -1,54 +1,147 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { IonicModule, ModalController } from '@ionic/angular';
-import { QuizService } from '../services/quizService';
-import { Quiz } from '../models/quiz';
-import { AddQuizModalComponent } from '../components/add-quiz-modal/add-quiz-modal.component';
+import { Router } from '@angular/router';
+import { Auth, user } from '@angular/fire/auth';
+import {
+  IonBadge,
+  IonButton,
+  IonContent,
+  IonFab,
+  IonFabButton,
+  IonHeader,
+  IonIcon,
+  IonTitle,
+  IonToolbar,
+} from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { add } from 'ionicons/icons';
+import { add, chevronForwardOutline, createOutline, personCircleOutline, playOutline } from 'ionicons/icons';
+import { filter, take } from 'rxjs/operators';
+import { Quiz } from '../models/quiz';
+import { Game } from '../models/game';
+import { GameService } from '../services/game.service';
+import { QuizService } from '../services/quizService';
+import { UserService } from '../services/user.service';
+
+interface ActiveGame extends Game {
+  adminAlias?: string;
+  quizTitle?: string;
+}
 
 @Component({
   selector: 'app-home',
   templateUrl: 'home.page.html',
   standalone: true,
-  imports: [IonicModule],
+  styleUrls: ['home.page.scss'],
+  imports: [
+    IonBadge,
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonButton,
+    IonIcon,
+    IonContent,
+    IonFab,
+    IonFabButton,
+  ],
 })
 export class HomePage implements OnInit {
   quizzes = signal<Quiz[]>([]);
-  
+  alias = signal<string>('');
+  activeGames = signal<ActiveGame[]>([]);
+
   private quizService = inject(QuizService);
-  private modalCtrl = inject(ModalController);
+  private userService = inject(UserService);
+  private gameService = inject(GameService);
+  private auth = inject(Auth);
+  private router = inject(Router);
 
   constructor() {
-    // Rejestrujemy ikonę plusa
-    addIcons({ add });
+    addIcons({ add, chevronForwardOutline, createOutline, personCircleOutline, playOutline });
   }
 
-  async ngOnInit() {
-    const data = await this.quizService.getAll();
-    this.quizzes.set(data);
-  }
-
-  async openAddModal() {
-    const modal = await this.modalCtrl.create({
-      component: AddQuizModalComponent,
+  ngOnInit() {
+    this.quizService.getAll().subscribe({
+      next: (data) => this.quizzes.set(data),
+      error: (error) => console.error('Quiz list load failed', error),
     });
-    
-    await modal.present();
 
-    // Oczekiwanie na zamknięcie modala
-    const { data, role } = await modal.onWillDismiss();
+    user(this.auth)
+      .pipe(
+        filter((u): u is NonNullable<typeof u> => !!u),
+        take(1),
+      )
+      .subscribe({
+        next: (u) => {
+          this.userService.getById(u.uid).pipe(take(1)).subscribe({
+            next: (userData) => {
+              if (userData?.alias) {
+                this.alias.set(userData.alias);
+              }
+            },
+          });
 
-    if (role === 'confirm' && data) {
-      const newQuiz: Quiz = {
-        ...data,
-        // id: Date.now() // For the test only
-        id: ''
-      };
+          this.gameService.getActiveGamesForPlayer(u.uid).subscribe({
+            next: (games) => {
+              games.forEach((game, i) => {
+                const ag = game as ActiveGame;
 
-      await this.quizService.addQuiz(newQuiz)
-    
-      this.quizzes.update(current => [...current, newQuiz]);
-    }
+                this.userService.getById(game.adminId).pipe(take(1)).subscribe({
+                  next: (adminData) => {
+                    ag.adminAlias = adminData?.alias || 'Unknown';
+                    this.activeGames.update((prev) => {
+                      const copy = [...prev];
+                      copy[i] = ag;
+                      return copy;
+                    });
+                  },
+                });
+
+                this.quizService.getById(game.quizId).pipe(take(1)).subscribe({
+                  next: (quiz) => {
+                    ag.quizTitle = quiz?.title || 'Quiz';
+                    this.activeGames.update((prev) => {
+                      const copy = [...prev];
+                      copy[i] = ag;
+                      return copy;
+                    });
+                  },
+                });
+              });
+
+              this.activeGames.set(games as ActiveGame[]);
+            },
+          });
+        },
+      });
+  }
+
+  gotoProfile() {
+    this.router.navigateByUrl('/profile');
+  }
+
+  openAddQuiz() {
+    this.router.navigateByUrl('/add-quiz');
+  }
+
+  editQuiz(event: MouseEvent, quizId: string) {
+    event.stopPropagation();
+    event.preventDefault();
+    this.router.navigate(['/edit-quiz', quizId]);
+  }
+
+  playGame(event: MouseEvent, quizId: string) {
+    event.stopPropagation();
+    event.preventDefault();
+
+    const uid = this.auth.currentUser?.uid;
+    if (!uid) return;
+
+    this.quizService.getById(quizId).pipe(take(1)).subscribe(async (quiz) => {
+      const gameId = await this.gameService.createGame(quiz, uid);
+      this.router.navigate(['/game-lobby', gameId]);
+    });
+  }
+
+  resumeGame(game: ActiveGame) {
+    this.router.navigate(['/play-quiz', game.id], { queryParams: { mode: 'multiplayer' } });
   }
 }
-// Icone i formulaire ze storny ? 

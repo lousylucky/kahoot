@@ -1,0 +1,72 @@
+<ion-header [translucent]="true">
+  <ion-toolbar class="app-header">
+    <ion-title>My Kahoot</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="join-content">
+  <div class="join-wrapper">
+
+    <!-- ── Brand ── -->
+    <div class="brand">
+      <div class="brand-icon">🎮</div>
+      <h1 class="brand-name">Join a Game</h1>
+      <p class="brand-sub">Enter the 6-digit code or scan a QR</p>
+    </div>
+
+    <!-- ── Scanner overlay ── -->
+    @if (scanning()) {
+      <div class="scanner-card">
+        <div class="scanner-viewport">
+          <video #videoEl playsinline muted></video>
+          <canvas #canvasEl class="scanner-canvas"></canvas>
+          <div class="scanner-frame"></div>
+        </div>
+        <ion-button expand="block" fill="outline" color="danger" class="stop-btn" (click)="stopScan()">
+          <ion-icon slot="start" name="close-outline"></ion-icon>
+          Cancel
+        </ion-button>
+      </div>
+    }
+
+    <!-- ── Code card ── -->
+    @if (!scanning()) {
+      <div class="join-card">
+        <div class="field-group">
+          <label class="field-label">Entry Code</label>
+          <ion-item class="field-item" lines="none">
+            <ion-input
+              [(ngModel)]="entryCode"
+              placeholder="000000"
+              type="text"
+              maxlength="6"
+              class="code-input"
+            ></ion-input>
+          </ion-item>
+        </div>
+
+        @if (error) {
+          <div class="error-container">
+            <p class="error-text">{{ error }}</p>
+          </div>
+        }
+
+        <ion-button
+          expand="block"
+          class="join-btn"
+          (click)="joinGame()"
+          [disabled]="!entryCode.trim()"
+        >
+          Join Game
+        </ion-button>
+
+        <div class="divider"><span>or</span></div>
+        <ion-button expand="block" fill="outline" class="scan-btn" (click)="scanQR()">
+          <ion-icon slot="start" name="scan-outline"></ion-icon>
+          Scan QR Code
+        </ion-button>
+      </div>
+    }
+
+  </div>
+</ion-content>

@@ -1,0 +1,42 @@
+import { inject, Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+import {
+  collection,
+  collectionData,
+  doc,
+  docData,
+  Firestore,
+} from '@angular/fire/firestore';
+import { User } from '@angular/fire/auth';
+import { setDoc } from 'firebase/firestore';
+
+export interface UserWithAlias extends User {
+  alias: string;
+}
+
+@Injectable({
+  providedIn: 'root',
+})
+export class UserService {
+  private firestore = inject(Firestore);
+
+  usersCollection = collection(this.firestore, 'users');
+
+  create(uid: string, alias: string) {
+    return setDoc(doc(this.firestore, `users/${uid}`), { alias });
+  }
+
+  updateAlias(uid: string, alias: string) {
+    return setDoc(doc(this.firestore, `users/${uid}`), { alias }, { merge: true });
+  }
+
+  getAll() {
+    return collectionData(this.usersCollection, {
+      idField: 'id',
+    }) as Observable<UserWithAlias[]>;
+  }
+
+  getById(uid: string): Observable<UserWithAlias> {
+    return docData(doc(this.firestore, `users/${uid}`)) as Observable<UserWithAlias>;
+  }
+}
